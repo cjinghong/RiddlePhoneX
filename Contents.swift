@@ -1,15 +1,36 @@
-//: A UIKit based Playground for presenting user interface
-  
 import UIKit
 import PlaygroundSupport
 
+/*:
+ # Playgrounds X
+
+ I fell in love with all the different animations you can find in the IPhone X, and I've decided to make a playground demonstrating the different animations.
+
+ ### Creating the iPhone X.
+ */
+let iphoneX = IPhoneXView(diagonal: 800)
+/*:
+ ### Setting a new wallpaper
+
+ You can choose from a preset of wallpapers by using `Wallpaper.waves` or `Wallpaper.redBlue`
+*/
+iphoneX.set(wallpaper: Wallpaper.waves)
+//iphoneX.set(wallpaper: Wallpaper.redBlue)
+//iphoneX.set(wallpaper: Wallpaper.mountain)
 
 
-// Image is 1:2 ratio
-//let width = 350
-//let height = width * 2
-//let iphoneX = IPhoneXView(frame: CGRect(x: 0, y: 0, width: width, height: height))
-let iphoneX = IPhoneXView(diagonal: 1800)
 
-// Present the view controller in the Live View window
+
+
+
+
+
+
+
+
+
+
+
+
 PlaygroundPage.current.liveView = iphoneX
+
