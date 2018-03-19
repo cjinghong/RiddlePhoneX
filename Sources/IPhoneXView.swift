@@ -7,7 +7,7 @@ public class IPhoneXView: UIView {
     /// Content view.
     /// All subviews should be added into the content view.
     private(set) var contentView: UIView!
-    private var appsView: UIView?
+    private var appsView: AppsView?
 
     /// Wallpaper
     private var wallpaperImageView: UIImageView!
@@ -44,7 +44,20 @@ public class IPhoneXView: UIView {
     private func createMainFrame() {
         // IPHONE X FRAME
         // Creates iPhone X frame
-        let frameImageView = UIImageView(image: UIImage(named: "iphonexframe"))
+        var image = UIImage(named: "iphonexframe")
+
+        // Ratio is the bigger number of the width and height divided by the smaller number
+        var ratio = frame.width / frame.height
+        if frame.height > frame.width {
+            ratio = frame.height / frame.width
+        }
+
+        // If ratio is less than 1.5, use a square image instead
+        if ratio < 1.5 {
+            image = UIImage(named: "iphonexframe-square")
+        }
+
+        let frameImageView = UIImageView(image: image)
         frameImageView.frame = frame
         frameImageView.contentMode = .scaleToFill
 
@@ -194,8 +207,18 @@ public class IPhoneXView: UIView {
         wallpaperImageView.image = wallpaper.image
     }
 
+    public func install(apps: [BaseApp]) {
+        for app in apps {
+            install(app: app)
+        }
+    }
+
+    public func install(app: BaseApp) {
+        appsView?.install(app)
+    }
 
 }
+
 
 
 

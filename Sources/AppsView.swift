@@ -4,12 +4,14 @@ import UIKit
 /// Screen containing scrollable apps.
 public class AppsView: UIView {
 
+    private var apps: [BaseApp] = []
+
+    /// app cell width fixed to 50
+    private let appCellWidth: CGFloat = 50
     private let APPSCELLSPACING: CGFloat = 23
 
-    // TODO: - Update this number of apps
-    private let numberOfApps: Int = 10
-
     private var appsCollectionView: UICollectionView!
+
     private var pageControl: UIPageControl!
     private var bottomAppBar: UIView!
 
@@ -21,6 +23,23 @@ public class AppsView: UIView {
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
+    }
+
+    /// Sets the apps immediately (does not have "install" animation
+    public func setApps(_ apps: [BaseApp]) {
+        self.apps = apps
+        self.appsCollectionView.reloadData()
+    }
+
+    /// Installs a given app
+    public func install(_ app: BaseApp) {
+        self.apps.append(app)
+        self.appsCollectionView.reloadSections(IndexSet(integer: 0))
+
+        // TODO: - Show install animation
+        if let lastCell = self.appsCollectionView.cellForItem(at: IndexPath(item: self.apps.count - 1, section: 0)) as? AppCell {
+            lastCell.animateInstall()
+        }
     }
 
     private func createBottomAppBar() {
@@ -47,10 +66,10 @@ public class AppsView: UIView {
                                                   width: self.frame.width,
                                                   height: height))
         // 24 apps per page
-        pageControl.numberOfPages = numberOfApps / 24
+        pageControl.numberOfPages = self.apps.count / 24
         self.addSubview(pageControl)
     }
-
+    
     private func createMainAppCollectionView() {
         // Flow Layout
         let flowLayout = UICollectionViewFlowLayout()
@@ -69,7 +88,8 @@ public class AppsView: UIView {
         appsCollectionView.isPagingEnabled = true
         appsCollectionView.alwaysBounceHorizontal = true
 
-        appsCollectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "AppsCell")
+        appsCollectionView.register(AppCell.self, forCellWithReuseIdentifier: "AppCell")
+
         appsCollectionView.delegate = self
         appsCollectionView.dataSource = self
 
@@ -93,7 +113,15 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
 
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         // Width to only containing 4 columns
-        let w = (collectionView.frame.width / 4) - APPSCELLSPACING
+        var cols: CGFloat = 4
+        var w = (collectionView.frame.width / cols) - APPSCELLSPACING
+        
+        // if width is too big, insert 1 more cell
+        while (w > 70) {
+            cols += 1
+            w = (collectionView.frame.width / cols) - APPSCELLSPACING
+        }
+
         // Height is w + addtional for label
         let h = w + 20
         return CGSize(width: w, height: h)
@@ -104,13 +132,12 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
     }
 
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return numberOfApps
+        return self.apps.count
     }
 
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AppsCell", for: indexPath)
-        cell.backgroundColor = .black
-        cell.clipsToBounds = true
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AppCell", for: indexPath) as! AppCell
+        cell.app = self.apps[indexPath.row]
         cell.layer.cornerRadius = 10
         return cell
     }
