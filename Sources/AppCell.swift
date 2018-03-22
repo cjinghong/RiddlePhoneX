@@ -1,7 +1,13 @@
 import Foundation
 import UIKit
 
+public protocol AppCellTouchGestureDelegate: class {
+    func cellDidLongTapped(cell: AppCell)
+}
+
 public class AppCell: UICollectionViewCell {
+
+    weak var delegate: AppCellTouchGestureDelegate?
 
     public var app: BaseApp? {
         didSet {
@@ -30,9 +36,42 @@ public class AppCell: UICollectionViewCell {
         setup()
     }
 
+    // MARK: - Animations
     /// TODO: - Shows install animation
     public func animateInstall() {
 
+    }
+
+    private var shouldWiggle = true
+
+    public func stopWiggle() {
+        shouldWiggle = false
+        Utils.delay(by: 0.2) {
+            UIView.animate(withDuration: 0.2, delay: 0, options: [.curveLinear], animations: {
+                self.transform = CGAffineTransform.identity
+            }, completion: nil)
+        }
+    }
+
+    /// Start wiggling with a delay. Default is random delay
+    public func startWiggle() {
+        shouldWiggle = true
+        animateWigglingIndefinitely()
+    }
+
+    private func animateWigglingIndefinitely(_ delay: TimeInterval = Double.random(min: 0, max: 0.3)) {
+        if !shouldWiggle { return }
+
+        let angle: CGFloat = 2 * CGFloat.pi / 180
+        UIView.animate(withDuration: 0.1, delay: delay, options: [.curveEaseOut], animations: {
+            self.transform = CGAffineTransform(rotationAngle: -angle)
+        }, completion: { _ in
+            UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseOut], animations: {
+                self.transform = CGAffineTransform(rotationAngle: angle)
+            }, completion: {[weak self] _ in
+                self?.animateWigglingIndefinitely(0)
+            })
+        })
     }
 
     /// Adds a semitransparent uiview above the iconimageview
@@ -70,21 +109,26 @@ public class AppCell: UICollectionViewCell {
         appNameLabel = UILabel(frame: CGRect(x: -additionalLabelPadding/2, y: appIconImageView.frame.size.height + 3, width: frame.width + additionalLabelPadding, height: 12))
         appNameLabel.textColor = .white
         appNameLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-//        appNameLabel.backgroundColor = .black
         appNameLabel.textAlignment = .center
         appNameLabel.text = "Nameless App"
         self.addSubview(appNameLabel)
 
         // Touch down
         let touchDown = UILongPressGestureRecognizer(target:self, action: #selector(didTouchDown(_:)))
+        touchDown.delegate = self
         touchDown.minimumPressDuration = 0
         touchDown.cancelsTouchesInView = false
         self.addGestureRecognizer(touchDown)
+
+        let longTap = UILongPressGestureRecognizer(target: self, action: #selector(didLongTap(_:)))
+        longTap.delegate = self
+        longTap.minimumPressDuration = 1
+        longTap.cancelsTouchesInView = false
+        self.addGestureRecognizer(longTap)
     }
 
     @objc
     private func didTouchDown(_ sender: UILongPressGestureRecognizer) {
-
         switch sender.state {
         case .began, .changed:
             updateSelectedState(selected: true)
@@ -93,7 +137,26 @@ public class AppCell: UICollectionViewCell {
         }
     }
 
-
+    @objc
+    private func didLongTap(_ sender: UILongPressGestureRecognizer) {
+        delegate?.cellDidLongTapped(cell: self)
+    }
 
 
 }
+
+extension AppCell: UIGestureRecognizerDelegate {
+
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        return true
+    }
+
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+
+
+}
+
+
+

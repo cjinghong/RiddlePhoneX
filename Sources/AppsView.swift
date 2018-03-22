@@ -4,6 +4,8 @@ import UIKit
 /// Screen containing scrollable apps.
 public class AppsView: UIView {
 
+    /// If the user is organizing apps 
+    private(set) var isOrganisingApps: Bool = false
     private var apps: [BaseApp] = []
 
     /// app cell width fixed to 50
@@ -138,18 +140,59 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AppCell", for: indexPath) as! AppCell
         cell.app = self.apps[indexPath.row]
+        cell.delegate = self
         cell.layer.cornerRadius = 10
         return cell
     }
 
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // TODO: - Present app
         collectionView.deselectItem(at: indexPath, animated: true)
+    }
+
+    public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        if isOrganisingApps {
+            (cell as! AppCell).startWiggle()
+        } else {
+            (cell as! AppCell).stopWiggle()
+        }
     }
 
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         pageControl.currentPage = Int(scrollView.contentOffset.x) / Int(scrollView.frame.width)
     }
 }
+
+extension AppsView: AppCellTouchGestureDelegate {
+
+    public func cellDidLongTapped(cell: AppCell) {
+        startOrganisingApps()
+    }
+
+    public func startOrganisingApps() {
+        if !isOrganisingApps {
+            isOrganisingApps = true
+            for cell in self.appsCollectionView.visibleCells as! [AppCell] {
+                cell.startWiggle()
+            }
+        }
+    }
+
+    public func stopOrganisingApps() {
+        if isOrganisingApps {
+            isOrganisingApps = false
+            for cell in self.appsCollectionView.visibleCells as! [AppCell] {
+                cell.stopWiggle()
+            }
+        }
+    }
+
+}
+
+
+
+
+
 
 
 

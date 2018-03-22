@@ -23,16 +23,27 @@ let iphoneX = IPhoneXView(diagonal: 800)
 //iphoneX.set(wallpaper: Wallpaper.redBlue)
 //iphoneX.set(wallpaper: Wallpaper.mountain)
 
-// INSTALLING APPS
 let apps: [BaseApp] = [
     BaseApp(contentView: UIView(), name: "Hello World"),
     BaseApp(contentView: UIView(), name: "Hello 2"),
     BaseApp(contentView: UIView(), name: "Hello 3", icon: UIImage(named: "sampleicon"))
 ]
 iphoneX.install(apps: apps)
+
+
+//iphoneX.showAccessoryButton(withTitle: "Done", position: .topRight) {
+//    iphoneX.showAccessoryButton(withTitle: "Cancel", position: .topRight, action: nil)
+//}
+
+
 //
 //let myVeryOwnApp: App?
 //iphoneX.installApp(myApp)
+
+
+
+
+
 
 
 

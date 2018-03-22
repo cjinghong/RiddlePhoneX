@@ -1,12 +1,25 @@
 import Foundation
 import UIKit
 
+/// A protocol that defines an object that can be presented (such as an app)
+protocol Presentable: class {
+    /// When the user swiped up on the `iPhoneXView`, the `Presentable` object needs to dismiss or cancel any action
+    func swipedUpToCancel()
+}
+
 public class IPhoneXView: UIView {
 
     private var mainFrame: UIView!
+
+    /// Accessory button on the top left of the notch
+    private(set) var topLeftAccessoryButton: UIButton!
+    /// Accessory button on the top right of the notch
+    private(set) var topRightAccessoryButton: UIButton!
+
     /// Content view.
     /// All subviews should be added into the content view.
     private(set) var contentView: UIView!
+
     private var appsView: AppsView?
 
     /// Wallpaper
@@ -144,6 +157,46 @@ public class IPhoneXView: UIView {
         hidesBottomBar()
     }
 
+    public enum Position { case topLeft, topRight }
+    public func showAccessoryButton(withTitle title: String, position: Position, action: (() -> Void)?) {
+
+        let mainFrameWidth = self.mainFrame.frame.width
+
+        var x: CGFloat = 18
+        let y: CGFloat = 5
+        let w: CGFloat = mainFrameWidth * 100/800
+        let h: CGFloat = 18
+
+        switch position {
+        case .topLeft:
+            break
+        case .topRight:
+            x = self.contentView.frame.width - x - w
+        }
+
+        // Create button if not available yet
+        if self.topLeftAccessoryButton == nil {
+            self.topLeftAccessoryButton = UIButton(frame: CGRect(x: x, y: y, width: w, height: h))
+            self.topLeftAccessoryButton.layer.cornerRadius = h/2
+            self.topLeftAccessoryButton.backgroundColor = UIColor.white.withAlphaComponent(0.7)
+            self.topLeftAccessoryButton.titleLabel?.font = UIFont.systemFont(ofSize: 11, weight: .semibold)
+            self.topLeftAccessoryButton.setTitleColor(.black, for: .normal)
+            self.contentView.addSubview(topLeftAccessoryButton)
+        }
+
+        // Shrink, change title, then appears
+        self.topLeftAccessoryButton.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+        self.topLeftAccessoryButton.setTitle(title, for: .normal)
+        self.topLeftAccessoryButton.addAction(for: .touchUpInside) {
+            action?()
+        }
+
+        // Animate button appear
+        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+            self.topLeftAccessoryButton.transform = CGAffineTransform.identity
+        }, completion: nil)
+    }
+
     private func hidesBottomBar(_ animated: Bool = true) {
         if animated {
             UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseInOut], animations: {[weak self] in
@@ -178,7 +231,6 @@ public class IPhoneXView: UIView {
 
     @objc
     private func swipedUpToDismiss(_ sender: UIPanGestureRecognizer) {
-
         switch sender.state {
         case .changed:
             let translateY = sender.translation(in: self).y
@@ -189,10 +241,17 @@ public class IPhoneXView: UIView {
                 let scale = (1 + percentage) - (percentage * 0.6)
                 contentView.transform = CGAffineTransform(scaleX: scale, y: scale)
             } else if 1 + percentage <= 0.7 {
+                // If apps view is organising apps, dont show multitask,
+                // instead end the gesture, and end organising apps
+                if appsView?.isOrganisingApps == true {
+                    sender.isEnabled = false
+                    appsView?.stopOrganisingApps()
+                }
                 // TODO: - If more than 0.7, time to pop multitask
                 print("Boom! Multitask baby")
             }
         case .cancelled, .failed, .ended:
+            sender.isEnabled = true // Re-enable gesture
             UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.5, options: [.curveEaseOut], animations: { [weak self] in
                 self?.contentView.transform = CGAffineTransform.identity
             }, completion: nil)
