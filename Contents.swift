@@ -31,8 +31,12 @@ let apps: [BaseApp] = [
 iphoneX.set(apps: apps)
 
 
+
+// Testing accessory button
 //iphoneX.showAccessoryButton(withTitle: "Done", position: .topRight) {
-//    iphoneX.showAccessoryButton(withTitle: "Cancel", position: .topRight, action: nil)
+//    iphoneX.showAccessoryButton(withTitle: "Test 2", position: .topLeft, action: {
+//        iphoneX.hideAccessoryButton()
+//    })
 //}
 
 

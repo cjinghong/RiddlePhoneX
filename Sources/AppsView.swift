@@ -1,17 +1,35 @@
 import Foundation
 import UIKit
 
+public protocol AppsViewDelegate: class {
+    func shouldShowAccessoryButton(withTitle title: String, position: Position, action: @escaping (() -> Void))
+    func shouldHideAccessoryButton()
+}
+
 /// Screen containing scrollable apps.
 public class AppsView: UIView {
 
     /// If the user is organizing apps 
-    private(set) var isOrganisingApps: Bool = false
+    private(set) var isOrganisingApps: Bool = false {
+        didSet {
+            if isOrganisingApps {
+                delegate?.shouldShowAccessoryButton(withTitle: "Done", position: .topRight, action: { [weak self] in
+                    self?.stopOrganisingApps()
+                })
+            } else {
+                delegate?.shouldHideAccessoryButton()
+            }
+        }
+    }
     private var apps: [BaseApp] = []
+    public weak var delegate: AppsViewDelegate?
 
     /// app cell width fixed to 50
     private let appCellWidth: CGFloat = 50
     private let APPSCELLSPACING: CGFloat = 23
 
+    /// Keeps a reference of the parent
+    private var iPhoneXView: IPhoneXView!
     private var appsCollectionView: UICollectionView!
 
     private var pageControl: UIPageControl!
@@ -24,6 +42,12 @@ public class AppsView: UIView {
 
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        setup()
+    }
+
+    public init(frame: CGRect, delegate: AppsViewDelegate) {
+        super.init(frame: frame)
+        self.delegate = delegate
         setup()
     }
 

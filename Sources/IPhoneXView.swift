@@ -1,10 +1,8 @@
 import Foundation
 import UIKit
 
-/// A protocol that defines an object that can be presented (such as an app)
-protocol Presentable: class {
-    /// When the user swiped up on the `iPhoneXView`, the `Presentable` object needs to dismiss or cancel any action
-    func swipedUpToCancel()
+public enum Position {
+    case topLeft, topRight
 }
 
 public class IPhoneXView: UIView {
@@ -12,15 +10,13 @@ public class IPhoneXView: UIView {
     private var mainFrame: UIView!
 
     /// Accessory button on the top left of the notch
-    private(set) var topLeftAccessoryButton: UIButton!
-    /// Accessory button on the top right of the notch
-    private(set) var topRightAccessoryButton: UIButton!
+    private(set) var topAccessoryButton: UIButton?
 
     /// Content view.
     /// All subviews should be added into the content view.
     private(set) var contentView: UIView!
 
-    private var appsView: AppsView?
+    private var appsView: AppsView!
 
     /// Wallpaper
     private var wallpaperImageView: UIImageView!
@@ -53,6 +49,7 @@ public class IPhoneXView: UIView {
         setup()
     }
 
+    // MARK: - Creating components functions
     /// Main frame is the most front view
     private func createMainFrame() {
         // IPHONE X FRAME
@@ -142,12 +139,10 @@ public class IPhoneXView: UIView {
         self.insertSubview(bottomBarView, belowSubview: mainFrame)
     }
 
-    private func showAppsView() {
+    private func createAppsView() {
         // Create appsView if needed
-        if self.appsView == nil {
-            self.appsView = AppsView(frame: CGRect(x: 0, y: 0, width: contentView.frame.width, height: contentView.frame.height))
-        }
-
+        let frame = CGRect(x: 0, y: 0, width: contentView.frame.width, height: contentView.frame.height)
+        self.appsView = AppsView(frame: frame, delegate: self)
         // Show appsView if needed
         if self.appsView!.superview == nil {
             contentView.addSubview(self.appsView!)
@@ -157,9 +152,10 @@ public class IPhoneXView: UIView {
         hidesBottomBar()
     }
 
-    public enum Position { case topLeft, topRight }
-    public func showAccessoryButton(withTitle title: String, position: Position, action: (() -> Void)?) {
+    // MARK: - Show hide components functions
+    private func showAccessoryButton(withTitle title: String, position: Position, action: (() -> Void)?) {
 
+        print("Show button")
         let mainFrameWidth = self.mainFrame.frame.width
 
         var x: CGFloat = 18
@@ -174,27 +170,42 @@ public class IPhoneXView: UIView {
             x = self.contentView.frame.width - x - w
         }
 
-        // Create button if not available yet
-        if self.topLeftAccessoryButton == nil {
-            self.topLeftAccessoryButton = UIButton(frame: CGRect(x: x, y: y, width: w, height: h))
-            self.topLeftAccessoryButton.layer.cornerRadius = h/2
-            self.topLeftAccessoryButton.backgroundColor = UIColor.white.withAlphaComponent(0.7)
-            self.topLeftAccessoryButton.titleLabel?.font = UIFont.systemFont(ofSize: 11, weight: .semibold)
-            self.topLeftAccessoryButton.setTitleColor(.black, for: .normal)
-            self.contentView.addSubview(topLeftAccessoryButton)
-        }
+        // Remove existing button from superview (if available), Create a new button everytime
+        self.topAccessoryButton?.removeFromSuperview()
+
+        self.topAccessoryButton = UIButton(frame: CGRect(x: x, y: y, width: w, height: h))
+        self.topAccessoryButton!.layer.cornerRadius = h/2
+        self.topAccessoryButton!.backgroundColor = UIColor.white.withAlphaComponent(0.7)
+        self.topAccessoryButton!.titleLabel?.font = UIFont.systemFont(ofSize: 11, weight: .semibold)
+        self.topAccessoryButton!.setTitleColor(.black, for: .normal)
+
+        // Hidden at first, while waiting to animate
+        self.topAccessoryButton!.alpha = 0
+        self.contentView.addSubview(topAccessoryButton!)
 
         // Shrink, change title, then appears
-        self.topLeftAccessoryButton.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
-        self.topLeftAccessoryButton.setTitle(title, for: .normal)
-        self.topLeftAccessoryButton.addAction(for: .touchUpInside) {
+        self.topAccessoryButton!.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+        self.topAccessoryButton!.setTitle(title, for: .normal)
+        self.topAccessoryButton!.addAction(for: .touchUpInside) {
             action?()
         }
 
         // Animate button appear
-        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
-            self.topLeftAccessoryButton.transform = CGAffineTransform.identity
+        self.topAccessoryButton!.alpha = 1
+        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: { [weak self] in
+            self?.topAccessoryButton!.transform = CGAffineTransform.identity
         }, completion: nil)
+    }
+
+    private func hideAccessoryButton() {
+        guard let button = self.topAccessoryButton else { return }
+
+        // Animate button disappear
+        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+            button.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+        }, completion: { _ in
+            button.removeFromSuperview()
+        })
     }
 
     private func hidesBottomBar(_ animated: Bool = true) {
@@ -226,7 +237,7 @@ public class IPhoneXView: UIView {
         createBackgroundWallpaper()
 
         // Show appsview (home screen)
-        showAppsView()
+        createAppsView()
     }
 
     @objc
@@ -278,6 +289,19 @@ public class IPhoneXView: UIView {
     }
 
 }
+
+extension IPhoneXView: AppsViewDelegate {
+
+    public func shouldShowAccessoryButton(withTitle title: String, position: Position, action: @escaping (() -> Void)) {
+        self.showAccessoryButton(withTitle: title, position: position, action: action)
+    }
+
+    public func shouldHideAccessoryButton() {
+        self.hideAccessoryButton()
+    }
+    
+}
+
 
 
 
