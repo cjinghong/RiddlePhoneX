@@ -4,19 +4,19 @@ import UIKit
 public class Wallpaper {
 
     // Wallpaper presets
-    public class var waves: Wallpaper {
+    public class var aurora: Wallpaper {
         get {
-            return Wallpaper(fromImage: UIImage(named: "Wallpapers/waves")!)
+            return Wallpaper(fromImage: UIImage(named: "Wallpapers/aurora")!)
         }
     }
-    public class var redBlue: Wallpaper {
+    public class var desert: Wallpaper {
         get {
-            return Wallpaper(fromImage: UIImage(named: "Wallpapers/redBlue")!)
+            return Wallpaper(fromImage: UIImage(named: "Wallpapers/desert")!)
         }
     }
-    public class var mountain: Wallpaper {
+    public class var mountains: Wallpaper {
         get {
-            return Wallpaper(fromImage: UIImage(named: "Wallpapers/mountain")!)
+            return Wallpaper(fromImage: UIImage(named: "Wallpapers/mountains")!)
         }
     }
 

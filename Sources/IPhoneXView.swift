@@ -102,7 +102,7 @@ public class IPhoneXView: UIView {
     /// Inserts a background wallpaper BELOW contentView
     private func createBackgroundWallpaper() {
         // Background wallpaper
-        let wallpaperImageView = UIImageView(image: Wallpaper.waves.image)
+        let wallpaperImageView = UIImageView(image: Wallpaper.desert.image)
         wallpaperImageView.contentMode = .scaleAspectFill
         wallpaperImageView.frame = CGRect(x: 0, y: 0, width: contentView.frame.width, height: contentView.frame.height + bottomBarView.frame.height)
         self.wallpaperImageView = wallpaperImageView
@@ -246,9 +246,10 @@ public class IPhoneXView: UIView {
                 if appsView?.isOrganisingApps == true {
                     sender.isEnabled = false
                     appsView?.stopOrganisingApps()
+                } else {
+                    // TODO: - If more than 0.7, time to pop multitask
+                    print("Boom! Multitask baby")
                 }
-                // TODO: - If more than 0.7, time to pop multitask
-                print("Boom! Multitask baby")
             }
         case .cancelled, .failed, .ended:
             sender.isEnabled = true // Re-enable gesture
@@ -266,12 +267,12 @@ public class IPhoneXView: UIView {
         wallpaperImageView.image = wallpaper.image
     }
 
-    public func install(apps: [BaseApp]) {
-        for app in apps {
-            install(app: app)
-        }
+    /// Sets the default apps. No install animation will be shown
+    public func set(apps: [BaseApp]) {
+        appsView?.setApps(apps)
     }
 
+    /// Install a given app
     public func install(app: BaseApp) {
         appsView?.install(app)
     }

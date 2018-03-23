@@ -19,16 +19,16 @@ let iphoneX = IPhoneXView(diagonal: 800)
 
  You can choose from a preset of wallpapers by using `Wallpaper.waves` or `Wallpaper.redBlue`
  */
-//iphoneX.set(wallpaper: Wallpaper.waves)
-//iphoneX.set(wallpaper: Wallpaper.redBlue)
-//iphoneX.set(wallpaper: Wallpaper.mountain)
+//iphoneX.set(wallpaper: Wallpaper.desert)
+//iphoneX.set(wallpaper: Wallpaper.aurora)
+//iphoneX.set(wallpaper: Wallpaper.mountains)
 
 let apps: [BaseApp] = [
     BaseApp(contentView: UIView(), name: "Hello World"),
     BaseApp(contentView: UIView(), name: "Hello 2"),
     BaseApp(contentView: UIView(), name: "Hello 3", icon: UIImage(named: "sampleicon"))
 ]
-iphoneX.install(apps: apps)
+iphoneX.set(apps: apps)
 
 
 //iphoneX.showAccessoryButton(withTitle: "Done", position: .topRight) {

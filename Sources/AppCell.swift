@@ -36,14 +36,7 @@ public class AppCell: UICollectionViewCell {
         setup()
     }
 
-    // MARK: - Animations
-    /// TODO: - Shows install animation
-    public func animateInstall() {
-
-    }
-
     private var shouldWiggle = true
-
     public func stopWiggle() {
         shouldWiggle = false
         Utils.delay(by: 0.2) {

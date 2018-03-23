@@ -27,21 +27,16 @@ public class AppsView: UIView {
         setup()
     }
 
-    /// Sets the apps immediately (does not have "install" animation
+    /// Sets the apps immediately, replaces existing apps
     public func setApps(_ apps: [BaseApp]) {
         self.apps = apps
         self.appsCollectionView.reloadData()
     }
 
-    /// Installs a given app
+    /// Installs a new app
     public func install(_ app: BaseApp) {
         self.apps.append(app)
         self.appsCollectionView.reloadSections(IndexSet(integer: 0))
-
-        // TODO: - Show install animation
-        if let lastCell = self.appsCollectionView.cellForItem(at: IndexPath(item: self.apps.count - 1, section: 0)) as? AppCell {
-            lastCell.animateInstall()
-        }
     }
 
     private func createBottomAppBar() {
