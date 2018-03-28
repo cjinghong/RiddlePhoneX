@@ -18,7 +18,7 @@ public extension Double {
 }
 
 public class Utils {
-    class func delay(by seconds: TimeInterval, completion: @escaping (() -> Void)) {
+    public class func delay(by seconds: TimeInterval, completion: @escaping (() -> Void)) {
         DispatchQueue.main.asyncAfter(deadline: .now() + seconds, execute: {
             completion()
         })

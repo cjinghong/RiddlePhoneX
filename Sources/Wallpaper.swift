@@ -19,6 +19,11 @@ public class Wallpaper {
             return Wallpaper(fromImage: UIImage(named: "Wallpapers/mountains")!)
         }
     }
+    public class var uglyrainbow: Wallpaper {
+        get {
+            return Wallpaper(fromImage: UIImage(named: "Wallpapers/uglyrainbow")!)
+        }
+    }
 
     public var image: UIImage
 

@@ -39,6 +39,7 @@ class AppsLayout: UICollectionViewLayout {
     }
 
     override func prepare() {
+        cache.removeAll()
         guard let collectionView = self.collectionView else { return }
         
         /// The x-offset that all items in the current page starts with.

@@ -21,15 +21,13 @@ public class AppsView: UIView {
             }
         }
     }
-    private var apps: [BaseApp] = []
+    private(set) var apps: [BaseApp] = []
     public weak var delegate: AppsViewDelegate?
 
     /// app cell width fixed to 50
     private let appCellWidth: CGFloat = 50
     private let APPSCELLSPACING: CGFloat = 23
 
-    /// Keeps a reference of the parent
-    private var iPhoneXView: IPhoneXView!
     private var appsCollectionView: UICollectionView!
 
     private var pageControl: UIPageControl!
@@ -60,7 +58,25 @@ public class AppsView: UIView {
     /// Installs a new app
     public func install(_ app: BaseApp) {
         self.apps.append(app)
-        self.appsCollectionView.reloadData()
+        let range = Range(uncheckedBounds: (0, appsCollectionView.numberOfSections))
+        let indexSet = IndexSet(integersIn: range)
+        appsCollectionView.reloadSections(indexSet)
+    }
+
+    /// Uninstalls an app
+    public func uninstall(_ app: BaseApp) {
+        guard let index = self.apps.index(of: app) else { return }
+        apps.remove(at: index)
+        let range = Range(uncheckedBounds: (0, appsCollectionView.numberOfSections))
+        let indexSet = IndexSet(integersIn: range)
+        appsCollectionView.reloadSections(indexSet)
+    }
+
+    public func uninstallAllApps() {
+        apps.removeAll()
+        let range = Range(uncheckedBounds: (0, appsCollectionView.numberOfSections))
+        let indexSet = IndexSet(integersIn: range)
+        appsCollectionView.reloadSections(indexSet)
     }
 
     private func createBottomAppBar() {

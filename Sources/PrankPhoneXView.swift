@@ -5,7 +5,7 @@ public enum Position {
     case topLeft, topRight
 }
 
-public class IPhoneXView: UIView {
+public class PrankPhoneXView: UIView {
 
     private var mainFrame: UIView!
 
@@ -99,7 +99,7 @@ public class IPhoneXView: UIView {
     /// Inserts a background wallpaper BELOW contentView
     private func createBackgroundWallpaper() {
         // Background wallpaper
-        let wallpaperImageView = UIImageView(image: Wallpaper.desert.image)
+        let wallpaperImageView = UIImageView(image: Wallpaper.uglyrainbow.image)
         wallpaperImageView.contentMode = .scaleAspectFill
         wallpaperImageView.frame = CGRect(x: 0, y: 0, width: contentView.frame.width, height: contentView.frame.height + bottomBarView.frame.height)
         self.wallpaperImageView = wallpaperImageView
@@ -288,9 +288,18 @@ public class IPhoneXView: UIView {
         appsView?.install(app)
     }
 
+    /// Uninstalls a given app
+    public func uninstall(app: BaseApp) {
+        appsView.uninstall(app)
+    }
+
+    /// Uninstalls ALL apps
+    public func uninstallAllApps() {
+        appsView.uninstallAllApps()
+    }
 }
 
-extension IPhoneXView: AppsViewDelegate {
+extension PrankPhoneXView: AppsViewDelegate {
 
     public func shouldShowAccessoryButton(withTitle title: String, position: Position, action: @escaping (() -> Void)) {
         self.showAccessoryButton(withTitle: title, position: position, action: action)
