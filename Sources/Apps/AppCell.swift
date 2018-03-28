@@ -7,6 +7,9 @@ public protocol AppCellTouchGestureDelegate: class {
 
 public class AppCell: UICollectionViewCell {
 
+    /// Cell height (Changes inner content view's frame)
+    private let cellWidth: CGFloat = 50
+
     weak var delegate: AppCellTouchGestureDelegate?
 
     public var app: BaseApp? {
@@ -22,6 +25,14 @@ public class AppCell: UICollectionViewCell {
         }
     }
 
+    public var wiggling: Bool {
+        get {
+            return shouldWiggle
+        }
+    }
+
+    /// ALL subviews should be inside the inner content view. The inner content view decides the size of the cell
+    private var innerContentView: UIView!
     private var appNameLabel: UILabel!
     private var iconOverlayView: UIView!
     private var appIconImageView: UIImageView!
@@ -36,12 +47,13 @@ public class AppCell: UICollectionViewCell {
         setup()
     }
 
+    /// Determines if the cell should be wiggling
     private var shouldWiggle = true
     public func stopWiggle() {
         shouldWiggle = false
         Utils.delay(by: 0.2) {
-            UIView.animate(withDuration: 0.2, delay: 0, options: [.curveLinear], animations: {
-                self.transform = CGAffineTransform.identity
+            UIView.animate(withDuration: 0.2, delay: 0, options: [.curveLinear], animations: { [weak self] in
+                self?.innerContentView.transform = CGAffineTransform.identity
             }, completion: nil)
         }
     }
@@ -53,14 +65,17 @@ public class AppCell: UICollectionViewCell {
     }
 
     private func animateWigglingIndefinitely(_ delay: TimeInterval = Double.random(min: 0, max: 0.3)) {
+
+        // Remove all animations before starting to wiggle again
+        self.innerContentView.layer.removeAllAnimations()
         if !shouldWiggle { return }
 
         let angle: CGFloat = 2 * CGFloat.pi / 180
-        UIView.animate(withDuration: 0.1, delay: delay, options: [.curveEaseOut], animations: {
-            self.transform = CGAffineTransform(rotationAngle: -angle)
+        UIView.animate(withDuration: 0.1, delay: delay, options: [.curveEaseOut], animations: { [weak self] in
+            self?.innerContentView.transform = CGAffineTransform(rotationAngle: -angle)
         }, completion: { _ in
-            UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseOut], animations: {
-                self.transform = CGAffineTransform(rotationAngle: angle)
+            UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseOut], animations: { [weak self] in
+                self?.innerContentView.transform = CGAffineTransform(rotationAngle: angle)
             }, completion: {[weak self] _ in
                 self?.animateWigglingIndefinitely(0)
             })
@@ -81,13 +96,17 @@ public class AppCell: UICollectionViewCell {
     }
 
     private func setup() {
+        // Inner content view
+        innerContentView = UIView(frame: CGRect(x: self.bounds.width/2 - cellWidth/2, y: 0, width: cellWidth, height: cellWidth))
+        innerContentView.backgroundColor = .white
+        innerContentView.layer.cornerRadius = 10
+        self.addSubview(innerContentView)
+
         // Square Image view for appicon
-        appIconImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: frame.width, height: frame.width))
-        appIconImageView.contentMode = .scaleAspectFill
-        appIconImageView.backgroundColor = .white
+        appIconImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: innerContentView.frame.width, height: innerContentView.frame.height))
         appIconImageView.clipsToBounds = true
-        appIconImageView.layer.cornerRadius = 10
-        self.addSubview(appIconImageView)
+        appIconImageView.contentMode = .scaleAspectFill
+        innerContentView.addSubview(appIconImageView)
 
         // Creates an invisible icon overlay view that shows when the cell is selected
         iconOverlayView = UIView(frame: appIconImageView.frame)
@@ -95,16 +114,16 @@ public class AppCell: UICollectionViewCell {
         iconOverlayView.layer.cornerRadius = 10
         iconOverlayView.clipsToBounds = true
         iconOverlayView.alpha = 0
-        self.addSubview(iconOverlayView)
+        innerContentView.addSubview(iconOverlayView)
 
         // Label for app name
         let additionalLabelPadding: CGFloat = 20
-        appNameLabel = UILabel(frame: CGRect(x: -additionalLabelPadding/2, y: appIconImageView.frame.size.height + 3, width: frame.width + additionalLabelPadding, height: 12))
+        appNameLabel = UILabel(frame: CGRect(x: -additionalLabelPadding/2, y: appIconImageView.frame.size.height + 3, width: innerContentView.frame.width + additionalLabelPadding, height: 12))
         appNameLabel.textColor = .white
         appNameLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         appNameLabel.textAlignment = .center
         appNameLabel.text = "Nameless App"
-        self.addSubview(appNameLabel)
+        innerContentView.addSubview(appNameLabel)
 
         // Touch down
         let touchDown = UILongPressGestureRecognizer(target:self, action: #selector(didTouchDown(_:)))
