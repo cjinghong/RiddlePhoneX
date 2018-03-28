@@ -60,7 +60,7 @@ public class AppsView: UIView {
     /// Installs a new app
     public func install(_ app: BaseApp) {
         self.apps.append(app)
-        self.appsCollectionView.reloadSections(IndexSet(integer: 0))
+        self.appsCollectionView.reloadData()
     }
 
     private func createBottomAppBar() {
@@ -93,17 +93,22 @@ public class AppsView: UIView {
     
     private func createMainAppCollectionView() {
         // Flow Layout
-        let flowLayout = UICollectionViewFlowLayout()
+        let flowLayout = AppsLayout() //UICollectionViewFlowLayout()
+        flowLayout.numberOfColumns = 4
+        flowLayout.numberOfRows = 6
+
 
         // Because cell is slightly longer
-        flowLayout.minimumInteritemSpacing = APPSCELLSPACING/3
-
-        flowLayout.minimumLineSpacing = APPSCELLSPACING
-        flowLayout.scrollDirection = .horizontal
-        flowLayout.sectionInset = UIEdgeInsets(top: APPSCELLSPACING + 40, left: APPSCELLSPACING / 2, bottom: APPSCELLSPACING, right: APPSCELLSPACING/2)
+//        flowLayout.minimumInteritemSpacing = APPSCELLSPACING/3
+//
+//        flowLayout.minimumLineSpacing = APPSCELLSPACING
+//        flowLayout.scrollDirection = .horizontal
+//        flowLayout.sectionInset = UIEdgeInsets(top: APPSCELLSPACING + 40, left: APPSCELLSPACING / 2, bottom: APPSCELLSPACING, right: APPSCELLSPACING/2)
 
         // Collection View
-        appsCollectionView = UICollectionView(frame: CGRect(x: 0, y: 0, width: self.frame.width, height: self.frame.height - bottomAppBar.frame.height - pageControl.frame.height), collectionViewLayout: flowLayout)
+        let topInset: CGFloat = 50
+        appsCollectionView = UICollectionView(frame: CGRect(x: 0, y: topInset, width: self.frame.width, height: self.frame.height - bottomAppBar.frame.height - pageControl.frame.height - topInset), collectionViewLayout: flowLayout)
+        appsCollectionView.clipsToBounds = true
         appsCollectionView.backgroundColor = nil
         appsCollectionView.showsHorizontalScrollIndicator = false
         appsCollectionView.isPagingEnabled = true
@@ -170,10 +175,14 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
     }
 
     public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        if isOrganisingApps {
-            (cell as! AppCell).startWiggle()
+
+        let cell = cell as! AppCell
+
+        // If isOrganisingApps, but cell is not wiggling, wiggle it!
+        if isOrganisingApps && !cell.wiggling {
+            cell.startWiggle()
         } else {
-            (cell as! AppCell).stopWiggle()
+            cell.stopWiggle()
         }
     }
 

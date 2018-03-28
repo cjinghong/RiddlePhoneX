@@ -8,11 +8,6 @@ import PlaygroundSupport
 
  ### Creating the iPhone X.
  */
-//let iphoneX = IPhoneXView(diagonal: 800)
-
-// Try changing it to a custom size!
-//let iphoneX = IPhoneXView(frame: CGRect(x: 0, y: 0, width: 500, height: 700))
-
 let iphoneX = IPhoneXView(diagonal: 800)
 /*:
  ### Setting a new wallpaper
@@ -23,12 +18,18 @@ let iphoneX = IPhoneXView(diagonal: 800)
 //iphoneX.set(wallpaper: Wallpaper.aurora)
 //iphoneX.set(wallpaper: Wallpaper.mountains)
 
-let apps: [BaseApp] = [
-    BaseApp(contentView: UIView(), name: "Hello World"),
-    BaseApp(contentView: UIView(), name: "Hello 2"),
-    BaseApp(contentView: UIView(), name: "Hello 3", icon: UIImage(named: "sampleicon"))
-]
+var apps = [BaseApp]()
+
+for i in 0...30 {
+    apps.append(BaseApp(contentView: UIView(), name: "\(i)"))
+}
+
 iphoneX.set(apps: apps)
+iphoneX.install(app: BaseApp(contentView: UIView(), name: "Suck"))
+iphoneX.install(app: BaseApp(contentView: UIView(), name: "Suck"))
+iphoneX.install(app: BaseApp(contentView: UIView(), name: "Suck"))
+iphoneX.install(app: BaseApp(contentView: UIView(), name: "Suck"))
+iphoneX.install(app: BaseApp(contentView: UIView(), name: "Suck"))
 
 
 
