@@ -321,8 +321,12 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
 
         switch riddle {
         case .evanEvanWhereAreYou:
-            guard let randIndexPath = randomIndexPath, let cell = appsCollectionView.cellForItem(at: randIndexPath) else { return }
-            cell.transform = CGAffineTransform(translationX: offsetX * 2, y: 0)
+            guard let randIndexPath = randomIndexPath,
+                let cell = appsCollectionView.cellForItem(at: randIndexPath) else { return }
+
+            if !evanFound {
+                cell.transform = CGAffineTransform(translationX: offsetX * 2, y: 0)
+            }
         }
     }
 
@@ -414,6 +418,14 @@ extension AppsView {
             }, completion: { (_) in
                 Utils.delay(by: 0.4, completion: {
                     self.delegate?.shouldCongratulate()
+
+                    // Evan walks away after 5s
+                    Utils.delay(by: 5, completion: {
+                        evanImageView.image = UIImage.animatedImageNamed("Animation/walk-", duration: 1)
+                        UIView.animate(withDuration: 2.5, animations: {
+                            evanImageView.transform = CGAffineTransform(translationX: self.bounds.maxX + 100, y: 0)
+                        }, completion: nil)
+                    })
                 })
             })
         })
