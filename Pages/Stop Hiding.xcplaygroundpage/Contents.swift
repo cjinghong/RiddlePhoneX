@@ -20,14 +20,29 @@ import PlaygroundSupport
 let riddlePhoneX = RiddlePhoneXView(diagonal: 800)
 riddlePhoneX.set(wallpaper: Wallpaper.mountains)
 riddlePhoneX.setupForRiddle(Riddle.stopHiding)
+
 /*:
  ## Hint #1
- Evan love to *stand out* from the crowd.
+ Tapping on the correct app that Evan is in seems to only expand it...
+
+ How else could we get Evan out of the box?
+ */
+/*:
+ ## Hint #2
+ Here's a little poem:
+
+ *When you swipe up,*
+
+ *I'd spin around;*
+
+ *Stop me at 90,*
+
+ *And the lost will be found.*
  */
 //:
 /*:
- ## Hint #2
- Swipe around the screen, do you notice anything *different*?
+ ## Hint #3
+ Swipe from the bottom, like an iPhone X to blow your mind. Now refer back to **Hint #1**
  */
 
 

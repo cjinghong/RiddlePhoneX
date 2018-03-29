@@ -6,6 +6,8 @@ public protocol AppsViewDelegate: class {
     func shouldHideAccessoryButton()
 
     func shouldCongratulate()
+    func contentViewShouldRotateBy(_ degrees: CGFloat, delay: TimeInterval, _ completion: @escaping (() -> Void))
+    func contentViewShouldReturnToOriginal(delay: TimeInterval, _ completion: @escaping (() -> Void))
 }
 
 /// Screen containing scrollable apps.
@@ -25,8 +27,40 @@ public class AppsView: UIView {
     private var wrongGuesses: Int = 0
 
     // MARK: - Stop hiding
-    private var waitingForEvan: Bool = false
     private var cellExpansionScale: CGFloat = 1.5
+    private var waitingForEvan: Bool = false
+
+    private var evanFallingTimer: Timer?
+    private var _evanShouldFall: Bool = false
+    /// Make evan fall, if when `waitingForEvan` is true, with an optional delay that defaults to 3 seconds.
+    public func evanShouldFall(_ shouldFall: Bool, gestureRecognizer: UIGestureRecognizer?, optionalDelay delay: TimeInterval = 3) {
+        // If shouldFall is different from the original value, set/cancel timer as needed
+        if shouldFall != _evanShouldFall {
+            if shouldFall == true {
+                print("Scheduled timer")
+                evanFallingTimer?.invalidate()
+                if self.waitingForEvan {
+                    guard let randomIndexPath = self.randomIndexPath else { return }
+
+                    evanFallingTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false, block: { (_) in
+
+                        self.evanFound = true
+                        gestureRecognizer?.isEnabled = false
+
+                        self.beginAnimatingEvanIsFound(indexPathOfEvansCell: randomIndexPath, inCollectionView: self.appsCollectionView, {
+                            gestureRecognizer?.isEnabled = true
+                            self.delegate?.shouldHideAccessoryButton()
+                        })
+                    })
+                }
+            } else {
+                print("Invalidated timer")
+                evanFallingTimer?.invalidate()
+                evanFallingTimer = nil
+            }
+        }
+        _evanShouldFall = shouldFall
+    }
 
 
 
@@ -111,11 +145,6 @@ public class AppsView: UIView {
     public func setupForRiddle(_ riddle: Riddle) {
         self.riddle = riddle
 
-        delegate?.shouldShowAccessoryButton(withTitle: "Solve", position: .topLeft, action: {
-            guard let indexPath = self.randomIndexPath else { return }
-            self.beginAnimatingEvanIsFound(indexPathOfEvansCell: indexPath, inCollectionView: self.appsCollectionView, nil)
-        })
-
         switch riddle {
         case .evanEvanWhereAreYou, .stopHiding:
             var apps = [BaseApp]()
@@ -129,6 +158,18 @@ public class AppsView: UIView {
 
             // Populate random index path
             self.randomIndexPath = IndexPath(item: randInt, section: 0)
+
+            if riddle == .evanEvanWhereAreYou {
+                delegate?.shouldShowAccessoryButton(withTitle: "Solve", position: .topLeft, action: {
+                    guard let indexPath = self.randomIndexPath else { return }
+                    self.beginAnimatingEvanIsFound(indexPathOfEvansCell: indexPath, inCollectionView: self.appsCollectionView, nil)
+                })
+            } else if riddle == .stopHiding {
+                delegate?.shouldShowAccessoryButton(withTitle: "Solve", position: .topLeft, action: {
+                    guard let indexPath = self.randomIndexPath else { return }
+                    self.solveForEvanStopHiding(indexPathOfEvansCell: indexPath, inCollectionView: self.appsCollectionView, nil)
+                })
+            }
         }
     }
 
@@ -425,6 +466,28 @@ extension AppsView: AppCellTouchGestureDelegate {
 
 // MARK: - Animation functions for
 extension AppsView {
+
+    private func solveForEvanStopHiding(indexPathOfEvansCell indexPath: IndexPath, inCollectionView collectionView: UICollectionView, _ completion: (() -> Void)?) {
+
+        // Expand Cell, waits for Evan
+        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+        cell.transform = CGAffineTransform.identity
+        UIView.animate(withDuration: 0.3, animations: {
+            cell.transform = CGAffineTransform(scaleX: self.cellExpansionScale, y: self.cellExpansionScale)
+        }, completion: nil)
+        waitingForEvan = true
+
+        // Spin content view around
+        delegate?.contentViewShouldRotateBy(90, delay: 1, {
+            // Return to original
+            self.delegate?.contentViewShouldReturnToOriginal(delay: 3, {
+                // Drop evan
+                self.evanShouldFall(true, gestureRecognizer: nil, optionalDelay: 0)
+            })
+        })
+
+    }
+
     /// Animation for Evan is found
     private func beginAnimatingEvanIsFound(indexPathOfEvansCell indexPath: IndexPath, inCollectionView collectionView: UICollectionView, _ completion: (() -> Void)?) {
         guard let cell = collectionView.cellForItem(at: indexPath) else { return }

@@ -5,16 +5,12 @@ public enum Position {
     case topLeft, topRight
 }
 
-protocol SwipeUpToDismissable {
-    <#requirements#>
-}
-
 public class RiddlePhoneXView: UIView {
 
     private var mainFrame: UIView!
 
     /// The current riddle
-    private(set) var currentRiddle: Riddle?
+    private var riddle: Riddle?
 
     /// Accessory button on the top left of the notch
     private(set) var topAccessoryButton: UIButton?
@@ -298,26 +294,68 @@ public class RiddlePhoneXView: UIView {
 
     @objc
     private func swipedUpToDismiss(_ sender: UIPanGestureRecognizer) {
+
         switch sender.state {
         case .changed:
-            let translateY = sender.translation(in: self).y
-            let percentage = translateY / self.frame.height * 2
+            // Check for riddle
+            if let riddle = self.riddle {
+                let translateY = sender.translation(in: self).y
+                let percentage = abs(translateY / self.frame.height)
 
-            // If less than 0, swiping up.
-            if percentage < 0 && 1 + percentage > 0.7 {
-                let scale = (1 + percentage) - (percentage * 0.6)
-                contentView.transform = CGAffineTransform(scaleX: scale, y: scale)
-            } else if 1 + percentage <= 0.7 {
-                // If apps view is organising apps, dont show multitask,
-                // instead end the gesture, and end organising apps
-                if appsView?.isOrganisingApps == true {
-                    sender.isEnabled = false
-                    appsView?.stopOrganisingApps()
-                } else {
-                    // TODO: - If more than 0.7, time to pop multitask
+                // Behaviour for riddle
+                switch riddle {
+                case .evanEvanWhereAreYou:
+                    break
+                case .stopHiding:
+                    // Rotate it like maddd
+                    let maxRadian: CGFloat = 360.0 * CGFloat.pi / 180.0
+                    let currentRadian = (maxRadian * percentage)
+                    contentView.transform = CGAffineTransform(rotationAngle: currentRadian)
+
+                    let correctRotationDegrees: CGFloat = 90
+                    let minRadianThreshold = (correctRotationDegrees - 10) * CGFloat.pi / 180.0
+                    let maxRadianThreshold = (correctRotationDegrees + 10) * CGFloat.pi / 180.0
+
+                    // If current radian is within range of
+                    if currentRadian >= minRadianThreshold && currentRadian <= maxRadianThreshold {
+                        appsView.evanShouldFall(true, gestureRecognizer: sender)
+                    } else {
+                        appsView.evanShouldFall(false, gestureRecognizer: sender)
+                    }
+                    break
+                }
+            } else {
+                let translateY = sender.translation(in: self).y
+                let percentage = translateY / self.frame.height * 2
+
+                // If less than 0, swiping up.
+                if percentage < 0 && 1 + percentage > 0.7 {
+                    let scale = (1 + percentage) - (percentage * 0.6)
+                    contentView.transform = CGAffineTransform(scaleX: scale, y: scale)
+                } else if 1 + percentage <= 0.7 {
+                    // If apps view is organising apps, dont show multitask,
+                    // instead end the gesture, and end organising apps
+                    if appsView?.isOrganisingApps == true {
+                        sender.isEnabled = false
+                        appsView?.stopOrganisingApps()
+                    } else {
+                        // TODO: - If more than 0.7, time to pop multitask
+                    }
                 }
             }
         case .cancelled, .failed, .ended:
+
+            // Behaviour for riddle.
+            if let riddle = riddle {
+                switch riddle {
+                case .evanEvanWhereAreYou:
+                    break
+                case .stopHiding:
+                    // Cancel falling if gesture released
+                    appsView?.evanShouldFall(false, gestureRecognizer: sender)
+                }
+            }
+
             sender.isEnabled = true // Re-enable gesture
             UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.5, options: [.curveEaseOut], animations: { [weak self] in
                 self?.contentView.transform = CGAffineTransform.identity
@@ -354,15 +392,11 @@ public class RiddlePhoneXView: UIView {
     }
 
     public func setupForRiddle(_ riddle: Riddle) {
+        self.riddle = riddle
         switch riddle {
         case .evanEvanWhereAreYou, .stopHiding:
             appsView.setupForRiddle(riddle)
         }
-    }
-
-    /// Solves the current riddle if exists.
-    public func solveRiddle() {
-        guard let riddle = currentRiddle else { return }
     }
 }
 
@@ -379,6 +413,23 @@ extension RiddlePhoneXView: AppsViewDelegate {
 
     public func shouldCongratulate() {
         self.congratulate()
+    }
+
+    public func contentViewShouldReturnToOriginal(delay: TimeInterval, _ completion: @escaping (() -> Void)) {
+        UIView.animate(withDuration: 0.4, delay: delay, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.5, options: [.curveEaseOut], animations: { [weak self] in
+            self?.contentView.transform = CGAffineTransform.identity
+            }, completion: { _ in
+                completion()
+        })
+    }
+
+    public func contentViewShouldRotateBy(_ degrees: CGFloat, delay: TimeInterval, _ completion: @escaping (() -> Void)) {
+        UIView.animate(withDuration: 1, delay: delay, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.5, options: [.curveEaseIn], animations: { [weak self] in
+            let radian = degrees * CGFloat.pi / 180.0
+            self?.contentView.transform = CGAffineTransform(rotationAngle: radian)
+            }, completion: { _ in
+                completion()
+        })
     }
     
 }
