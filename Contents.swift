@@ -43,16 +43,8 @@ prankPhoneX.set(apps: apps)
  You know what? 30 apps that does nothing doesn't really get me excited, you know what I mean? Let's get some *REAL* apps.
  */
 
-// Uninstalling all the existing apps
-prankPhoneX.uninstallAllApps()
-
-
-//iphoneX.install(app: BaseApp(contentView: UIView(), name: "Suck"))
-//iphoneX.install(app: BaseApp(contentView: UIView(), name: "Suck"))
-//iphoneX.install(app: BaseApp(contentView: UIView(), name: "Suck"))
-//iphoneX.install(app: BaseApp(contentView: UIView(), name: "Suck"))
-//iphoneX.install(app: BaseApp(contentView: UIView(), name: "Suck"))
-
+// Uninstalling all existing apps
+//prankPhoneX.uninstallAllApps()
 
 
 // Testing accessory button
@@ -66,7 +58,6 @@ prankPhoneX.uninstallAllApps()
 //
 //let myVeryOwnApp: App?
 //iphoneX.installApp(myApp)
-
 
 
 

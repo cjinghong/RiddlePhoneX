@@ -259,7 +259,6 @@ public class PrankPhoneXView: UIView {
                     appsView?.stopOrganisingApps()
                 } else {
                     // TODO: - If more than 0.7, time to pop multitask
-                    print("Boom! Multitask baby")
                 }
             }
         case .cancelled, .failed, .ended:

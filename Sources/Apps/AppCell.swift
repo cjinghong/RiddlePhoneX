@@ -8,7 +8,7 @@ public protocol AppCellTouchGestureDelegate: class {
 public class AppCell: UICollectionViewCell {
 
     /// Cell height (Changes inner content view's frame)
-    private let cellWidth: CGFloat = 50
+    public static let cellWidth: CGFloat = 50
 
     weak var delegate: AppCellTouchGestureDelegate?
 
@@ -16,6 +16,16 @@ public class AppCell: UICollectionViewCell {
         didSet {
             appIconImageView.image = app?.icon
             appNameLabel.text = app?.name
+        }
+    }
+
+    public var nameLabelHidden: Bool = false {
+        didSet {
+            if nameLabelHidden {
+                appNameLabel?.alpha = 0
+            } else {
+                appNameLabel?.alpha = 1
+            }
         }
     }
 
@@ -97,13 +107,14 @@ public class AppCell: UICollectionViewCell {
 
     private func setup() {
         // Inner content view
-        innerContentView = UIView(frame: CGRect(x: self.bounds.width/2 - cellWidth/2, y: 0, width: cellWidth, height: cellWidth))
+        innerContentView = UIView(frame: CGRect(x: self.bounds.width/2 - AppCell.cellWidth/2, y: 0, width: AppCell.cellWidth, height: AppCell.cellWidth))
         innerContentView.backgroundColor = .white
         innerContentView.layer.cornerRadius = 10
         self.addSubview(innerContentView)
 
         // Square Image view for appicon
         appIconImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: innerContentView.frame.width, height: innerContentView.frame.height))
+        appIconImageView.layer.cornerRadius = 10
         appIconImageView.clipsToBounds = true
         appIconImageView.contentMode = .scaleAspectFill
         innerContentView.addSubview(appIconImageView)
@@ -123,6 +134,9 @@ public class AppCell: UICollectionViewCell {
         appNameLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         appNameLabel.textAlignment = .center
         appNameLabel.text = "Nameless App"
+
+        if nameLabelHidden { appNameLabel.alpha = 0 }
+
         innerContentView.addSubview(appNameLabel)
 
         // Touch down
