@@ -5,6 +5,10 @@ public enum Position {
     case topLeft, topRight
 }
 
+protocol SwipeUpToDismissable {
+    <#requirements#>
+}
+
 public class RiddlePhoneXView: UIView {
 
     private var mainFrame: UIView!
@@ -351,10 +355,7 @@ public class RiddlePhoneXView: UIView {
 
     public func setupForRiddle(_ riddle: Riddle) {
         switch riddle {
-        case .evanEvanWhereAreYou:
-            // Collection view when scrolling,
-            // All the apps move to the direction of the scroll,
-            // Except for Evan.
+        case .evanEvanWhereAreYou, .stopHiding:
             appsView.setupForRiddle(riddle)
         }
     }

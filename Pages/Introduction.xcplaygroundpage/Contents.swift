@@ -3,11 +3,11 @@ import PlaygroundSupport
 /*:
  ### Table of Contents
 
- 1. [Introduction](Introduction)
+ 1. **[Introduction](Introduction)**
  2. [Evan Evan, Where are you?](Evan%20Evan,%20Where%20Are%20You)
- 3. [On a serious note](On%20a%20serious%20note)
-
-
+ 3. [Stop Hiding!](Stop%20Hiding)
+ 4. [On a serious note](On%20a%20serious%20note)
+ - - -
  */
 /*:
  # RiddlePhone X
@@ -21,9 +21,9 @@ let riddlePhoneX = RiddlePhoneXView(diagonal: 800)
 /*:
  ### A beautiful wallpaper
 
- Oh god that was an awful looking background. Let's try changing the wallpapers. Try uncommenting the lines below and explore the different wallpapers that is available.
+ Oh god that is an awful looking background. Let's change the wallpaper. Try uncommenting the lines below and explore the different wallpapers that is available.
  */
-riddlePhoneX.set(wallpaper: Wallpaper.desert)
+//riddlePhoneX.set(wallpaper: Wallpaper.desert)
 //riddlePhoneX.set(wallpaper: Wallpaper.aurora)
 //riddlePhoneX.set(wallpaper: Wallpaper.mountains)
 /*:

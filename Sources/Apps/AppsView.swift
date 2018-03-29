@@ -4,6 +4,7 @@ import UIKit
 public protocol AppsViewDelegate: class {
     func shouldShowAccessoryButton(withTitle title: String, position: Position, action: @escaping (() -> Void))
     func shouldHideAccessoryButton()
+
     func shouldCongratulate()
 }
 
@@ -23,6 +24,9 @@ public class AppsView: UIView {
     private let maxWrongGuessCount: Int = 3
     private var wrongGuesses: Int = 0
 
+    // MARK: - Stop hiding
+    private var waitingForEvan: Bool = false
+    private var cellExpansionScale: CGFloat = 1.5
 
 
 
@@ -113,7 +117,7 @@ public class AppsView: UIView {
         })
 
         switch riddle {
-        case .evanEvanWhereAreYou:
+        case .evanEvanWhereAreYou, .stopHiding:
             var apps = [BaseApp]()
             for i in 1..<19 {
                 apps.append(BaseApp(contentView: UIView(), name: "\(i)", icon: nil))
@@ -188,7 +192,7 @@ public class AppsView: UIView {
         // Collection View
         let topInset: CGFloat = 50
         appsCollectionView = UICollectionView(frame: CGRect(x: 0, y: topInset, width: self.frame.width, height: self.frame.height - bottomAppBar.frame.height - pageControl.frame.height - topInset), collectionViewLayout: flowLayout)
-        appsCollectionView.clipsToBounds = true
+        appsCollectionView.clipsToBounds = false
         appsCollectionView.backgroundColor = nil
         appsCollectionView.showsHorizontalScrollIndicator = false
         appsCollectionView.isPagingEnabled = true
@@ -274,21 +278,68 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
             // Check for ongoing riddles
             guard let riddle = riddle else { return }
             switch riddle {
-            case .evanEvanWhereAreYou:
+            case .evanEvanWhereAreYou, .stopHiding:
                 // Only continue if Evan is NOT found yet
                 if evanFound { return }
 
-                if indexPath == randomIndexPath {
-                    evanFound = true
-                    print("You found Evan!")
-                    
-                    beginAnimatingEvanIsFound(indexPathOfEvansCell: indexPath, inCollectionView: collectionView, {
-                        self.delegate?.shouldHideAccessoryButton()
-                    })
-                } else {
-                    wrongGuesses += 1
-                    print("Wrong.")
+                if riddle == .evanEvanWhereAreYou {
+                    if indexPath == randomIndexPath {
+                        evanFound = true
+                        print("You found Evan!")
+
+                        beginAnimatingEvanIsFound(indexPathOfEvansCell: indexPath, inCollectionView: collectionView, {
+                            self.delegate?.shouldHideAccessoryButton()
+                        })
+                    } else {
+                        wrongGuesses += 1
+                        print("Wrong.")
+                    }
+                } else if riddle == .stopHiding {
+
+                    if indexPath == randomIndexPath {
+                        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+                        UIView.animate(withDuration: 0.3, animations: {
+                            cell.transform = CGAffineTransform(scaleX: self.cellExpansionScale, y: self.cellExpansionScale)
+                        }, completion: nil)
+                        waitingForEvan = true
+                    } else {
+                        // Shirnk previously expanded cell, if exist.
+                        guard let randomIndexPath = randomIndexPath, let cell = collectionView.cellForItem(at: randomIndexPath) else { return }
+                        UIView.animate(withDuration: 0.3, animations: {
+                            cell.transform = CGAffineTransform.identity
+                        }, completion: nil)
+                        waitingForEvan = false
+
+                        wrongGuesses += 1
+                        print("Wrong.")
+                    }
                 }
+
+                // When clicked on the cell Evan belonged to:
+//                if indexPath == randomIndexPath {
+//
+//                    if riddle == .stopHiding {
+//                        // If stop hiding,
+//                        // cell expands,
+//                        // `waitingForEvan` becomes true,
+//                        // and waits for 90 degrees turn.
+//                        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+//                        UIView.animate(withDuration: 0.3, animations: {
+//                            cell.transform = CGAffineTransform(scaleX: 1.5, y: 1.5)
+//                        }, completion: nil)
+//                        waitingForEvan = true
+//                    } else {
+//                        evanFound = true
+//                        print("You found Evan!")
+//
+//                        beginAnimatingEvanIsFound(indexPathOfEvansCell: indexPath, inCollectionView: collectionView, {
+//                            self.delegate?.shouldHideAccessoryButton()
+//                        })
+//                    }
+//                } else {
+//                    wrongGuesses += 1
+//                    print("Wrong.")
+//                }
 
                 // If too many wrong guesses
                 if wrongGuesses > maxWrongGuessCount {
@@ -320,12 +371,20 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
         let offsetX = scrollView.contentOffset.x
 
         switch riddle {
-        case .evanEvanWhereAreYou:
+        case .evanEvanWhereAreYou, .stopHiding:
             guard let randIndexPath = randomIndexPath,
                 let cell = appsCollectionView.cellForItem(at: randIndexPath) else { return }
 
             if !evanFound {
-                cell.transform = CGAffineTransform(translationX: offsetX * 2, y: 0)
+                let translateTransform = CGAffineTransform(translationX: offsetX * 2, y: 0)
+
+                if riddle == .stopHiding && waitingForEvan {
+                    // If its stopHiding riddle and we're waiting for Evan, the cell should be expanded
+                    let scaleTransform = CGAffineTransform(scaleX: cellExpansionScale, y: cellExpansionScale)
+                    cell.transform = translateTransform.concatenating(scaleTransform)
+                } else {
+                    cell.transform = translateTransform
+                }
             }
         }
     }
@@ -339,9 +398,7 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
 extension AppsView: AppCellTouchGestureDelegate {
 
     public func cellDidLongTapped(cell: AppCell) {
-        if let riddle = riddle {
-
-        } else {
+        if riddle == nil {
             startOrganisingApps()
         }
     }

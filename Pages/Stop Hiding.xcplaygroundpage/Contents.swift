@@ -5,21 +5,21 @@ import PlaygroundSupport
  ### Table of Contents
 
  1. [Introduction](Introduction)
- 2. **[Evan Evan, Where are you?](Evan%20Evan,%20Where%20Are%20You)**
- 3. [Stop Hiding!](Stop%20Hiding)
+ 2. [Evan Evan, Where are you?](Evan%20Evan,%20Where%20Are%20You)
+ 3. **[Stop Hiding!](Stop%20Hiding)**
  4. [On a serious note](On%20a%20serious%20note)
  - - -
  [Previous](@previous)
  */
 /*:
- # Evan Evan, where are you?
- Your job is to find **Evan**. I won't tell you how exactly, but I've provided some hints. Whenever you get stuck, just press on the *Solve* button on the top left of the RiddlePhoneX, to get the answer.
+ # Stop hiding!
+ Oh gosh. There he goes again. Evan is gone. Use what you've learnt before to find him. But this time, its going to be even harder.
 
- Goodluck!
+ 祝你好运!
  */
 let riddlePhoneX = RiddlePhoneXView(diagonal: 800)
-riddlePhoneX.set(wallpaper: Wallpaper.aurora)
-riddlePhoneX.setupForRiddle(Riddle.evanEvanWhereAreYou)
+riddlePhoneX.set(wallpaper: Wallpaper.mountains)
+riddlePhoneX.setupForRiddle(Riddle.stopHiding)
 /*:
  ## Hint #1
  Evan love to *stand out* from the crowd.
@@ -41,3 +41,8 @@ riddlePhoneX.setupForRiddle(Riddle.evanEvanWhereAreYou)
 
 
 PlaygroundPage.current.liveView = riddlePhoneX
+
+
+
+
+
