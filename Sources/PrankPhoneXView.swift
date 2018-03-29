@@ -9,6 +9,9 @@ public class PrankPhoneXView: UIView {
 
     private var mainFrame: UIView!
 
+    /// The current riddle
+    private(set) var currentRiddle: Riddle?
+
     /// Accessory button on the top left of the notch
     private(set) var topAccessoryButton: UIButton?
 
@@ -169,10 +172,28 @@ public class PrankPhoneXView: UIView {
         hidesBottomBar()
     }
 
+    private func setup() {
+        // Main frame, containing the iPhoneX image
+        createMainFrame()
+
+        // Swipe from top for notifications and stuff
+        createTopBar()
+
+        // Content view.
+        createContentView()
+
+        // Bottom bar for dismissing apps
+        createBottomBarView()
+
+        // Background wallpaper
+        createBackgroundWallpaper()
+
+        // Show appsview (home screen)
+        createAppsView()
+    }
+
     // MARK: - Show hide components functions
     private func showAccessoryButton(withTitle title: String, position: Position, action: (() -> Void)?) {
-
-        print("Show button")
         let mainFrameWidth = self.mainFrame.frame.width
 
         var x: CGFloat = 18
@@ -203,7 +224,10 @@ public class PrankPhoneXView: UIView {
         // Shrink, change title, then appears
         self.topAccessoryButton!.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
         self.topAccessoryButton!.setTitle(title, for: .normal)
-        self.topAccessoryButton!.addAction(for: .touchUpInside) {
+
+        // Action always includes hiding itself. Hides itself before calling completion block. So if the button needs to be displayed again, just call `shouldShowAccessoryButton` in the completion
+        self.topAccessoryButton!.addAction(for: .touchUpInside) { [weak self] in
+            self?.hideAccessoryButton()
             action?()
         }
 
@@ -216,7 +240,6 @@ public class PrankPhoneXView: UIView {
 
     private func hideAccessoryButton() {
         guard let button = self.topAccessoryButton else { return }
-
         // Animate button disappear
         UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
             button.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
@@ -245,24 +268,12 @@ public class PrankPhoneXView: UIView {
         }
     }
 
-    private func setup() {
-        // Main frame, containing the iPhoneX image
-        createMainFrame()
-
-        // Swipe from top for notifications and stuff
-        createTopBar()
-
-        // Content view.
-        createContentView()
-
-        // Bottom bar for dismissing apps
-        createBottomBarView()
-
-        // Background wallpaper
-        createBackgroundWallpaper()
-
-        // Show appsview (home screen)
-        createAppsView()
+    /// Showers confetti to congratulate winner
+    private func congratulate() {
+        let confetti = SAConfettiView(frame: contentView.bounds)
+        confetti.isUserInteractionEnabled = false
+        confetti.startConfetti()
+        self.contentView.addSubview(confetti)
     }
 
     @objc
@@ -337,16 +348,36 @@ public class PrankPhoneXView: UIView {
     public func uninstallAllApps() {
         appsView.uninstallAllApps()
     }
+
+    public func setupForRiddle(_ riddle: Riddle) {
+        switch riddle {
+        case .evanEvanWhereAreYou:
+            // Collection view when scrolling,
+            // All the apps move to the direction of the scroll,
+            // Except for Evan.
+            appsView.setupForRiddle(riddle)
+        }
+    }
+
+    /// Solves the current riddle if exists.
+    public func solveRiddle() {
+        guard let riddle = currentRiddle else { return }
+    }
 }
 
 extension PrankPhoneXView: AppsViewDelegate {
 
+    /// Action always includes hiding itself. Hides itself before calling completion block. So if the button needs to be displayed again, just call `shouldShowAccessoryButton` in the completion
     public func shouldShowAccessoryButton(withTitle title: String, position: Position, action: @escaping (() -> Void)) {
         self.showAccessoryButton(withTitle: title, position: position, action: action)
     }
 
     public func shouldHideAccessoryButton() {
         self.hideAccessoryButton()
+    }
+
+    public func shouldCongratulate() {
+        self.congratulate()
     }
     
 }

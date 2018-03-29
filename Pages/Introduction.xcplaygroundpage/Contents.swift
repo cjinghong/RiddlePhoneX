@@ -1,6 +1,15 @@
 import UIKit
 import PlaygroundSupport
 /*:
+ ### Table of Contents
+
+ 1. [Introduction](Introduction)
+ 2. [Evan Evan, Where are you?](Evan%20Evan,%20Where%20Are%20You)
+ 3. [On a serious note](On%20a%20serious%20note)
+
+
+ */
+/*:
  # Prankphone X
 
  This project is exactly the same as an iPhone X. But only with several slightly-unexpected features, or shall I say that the entire device is full of unexpected twist and turns..?
@@ -22,11 +31,11 @@ prankPhoneX.set(wallpaper: Wallpaper.desert)
 
  What do you call an iPhone without cool apps?
 
- . . .
+ .
 
- . . .
+ .
 
- . . .
+ .
 
  I actually don't know the answer to that one. It's probably called an *Endroid*, or something. Nevermind let's start installing some apps!
  */
@@ -36,27 +45,19 @@ var apps = [BaseApp]()
 for i in 0..<30 {
     apps.append(BaseApp(contentView: UIView(), name: "\(i)"))
 }
+
 prankPhoneX.set(apps: apps)
 /*:
  ### Starting fresh
 
- You know what? 30 apps that does nothing doesn't really get me excited, you know what I mean? Let's get some *REAL* apps.
+ You know what? 30 apps that does nothing doesn't really get me excited, you know what I mean? Let's uninstall them.
  */
-
 // Uninstalling all existing apps
 //prankPhoneX.uninstallAllApps()
-
-
-
-//
-//let myVeryOwnApp: App?
-//iphoneX.installApp(myApp)
-
-
-
-
-
-
+/*:
+ #### Now that you've gotten a hang of it, let's get into the game...
+ */
+//: [Next](@next)
 
 
 
@@ -69,4 +70,3 @@ prankPhoneX.set(apps: apps)
 
 
 PlaygroundPage.current.liveView = prankPhoneX
-

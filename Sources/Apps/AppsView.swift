@@ -4,10 +4,29 @@ import UIKit
 public protocol AppsViewDelegate: class {
     func shouldShowAccessoryButton(withTitle title: String, position: Position, action: @escaping (() -> Void))
     func shouldHideAccessoryButton()
+    func shouldCongratulate()
 }
 
 /// Screen containing scrollable apps.
 public class AppsView: UIView {
+
+    private var riddle: Riddle?
+
+    // MARK: - evanEvanWhereAreYou
+    private var evanFound: Bool = false {
+        didSet {
+            // Remove random index path
+            randomIndexPath = nil
+        }
+    }
+    private var randomIndexPath: IndexPath?
+    private let maxWrongGuessCount: Int = 3
+    private var wrongGuesses: Int = 0
+
+
+
+
+
 
     /// If the user is organizing apps 
     private(set) var isOrganisingApps: Bool = false {
@@ -16,8 +35,6 @@ public class AppsView: UIView {
                 delegate?.shouldShowAccessoryButton(withTitle: "Done", position: .topRight, action: { [weak self] in
                     self?.stopOrganisingApps()
                 })
-            } else {
-                delegate?.shouldHideAccessoryButton()
             }
         }
     }
@@ -54,10 +71,13 @@ public class AppsView: UIView {
         setup()
     }
 
+    // MARK: - Public
     /// Sets the apps immediately, replaces existing apps
     public func setApps(_ apps: [BaseApp]) {
         self.apps = apps
-        self.appsCollectionView.reloadData()
+        let range = Range(uncheckedBounds: (0, appsCollectionView.numberOfSections))
+        let indexSet = IndexSet(integersIn: range)
+        appsCollectionView.reloadSections(indexSet)
     }
 
     /// Installs a new app
@@ -84,6 +104,31 @@ public class AppsView: UIView {
         appsCollectionView.reloadSections(indexSet)
     }
 
+    public func setupForRiddle(_ riddle: Riddle) {
+        self.riddle = riddle
+
+        delegate?.shouldShowAccessoryButton(withTitle: "Solve", position: .topLeft, action: {
+            guard let indexPath = self.randomIndexPath else { return }
+            self.beginAnimatingEvanIsFound(indexPathOfEvansCell: indexPath, inCollectionView: self.appsCollectionView, nil)
+        })
+
+        switch riddle {
+        case .evanEvanWhereAreYou:
+            var apps = [BaseApp]()
+            for i in 1..<19 {
+                apps.append(BaseApp(contentView: UIView(), name: "\(i)", icon: nil))
+            }
+            setApps(apps)
+
+            // Generate random number
+            let randInt = Int.random(min: 0, max: apps.count)
+
+            // Populate random index path
+            self.randomIndexPath = IndexPath(item: randInt, section: 0)
+        }
+    }
+
+    // MARK: - Setup code
     private func createBottomAppBar() {
         // Bottom app bar
         let marginSides: CGFloat = 10
@@ -170,27 +215,8 @@ public class AppsView: UIView {
 
 }
 
+// MARK: - Collection View
 extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-//
-//    public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-//
-//        if collectionView == appsCollectionView {
-//
-//        }
-//        // Width to only containing 4 columns
-//        var cols: CGFloat = 4
-//        var w = (collectionView.frame.width / cols) - APPSCELLSPACING
-//
-//        // if width is too big, insert 1 more cell
-//        while (w > 70) {
-//            cols += 1
-//            w = (collectionView.frame.width / cols) - APPSCELLSPACING
-//        }
-//
-//        // Height is w + addtional for label
-//        let h = w + 20
-//        return CGSize(width: w, height: h)
-//    }
 
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         if collectionView == self.bottomAppBarCollectionView {
@@ -229,27 +255,59 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
         cell.delegate = self
         cell.layer.cornerRadius = 10
 
+        // Setup cell
         if collectionView == self.appsCollectionView {
             cell.app = self.apps[indexPath.row]
         } else {
             cell.nameLabelHidden = true
             cell.app = self.bottomApps[indexPath.row]
         }
+
+        // If is in riddle, change colour of cell
+        if let riddle = riddle {
+            switch riddle {
+            case .evanEvanWhereAreYou:
+                cell.innerContentColor = UIColor.randomFlatColor()
+            }
+        }
+
         return cell
     }
 
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        // TODO: - Present app
-        if collectionView == self.appsCollectionView {
+        collectionView.deselectItem(at: indexPath, animated: true)
 
+        if collectionView == self.appsCollectionView {
+            // Check for ongoing riddles
+            guard let riddle = riddle else { return }
+            switch riddle {
+            case .evanEvanWhereAreYou:
+                // Only continue if Evan is NOT found yet
+                if evanFound { return }
+
+                if indexPath == randomIndexPath {
+                    evanFound = true
+                    print("You found Evan!")
+                    
+                    beginAnimatingEvanIsFound(indexPathOfEvansCell: indexPath, inCollectionView: collectionView, {
+                        self.delegate?.shouldHideAccessoryButton()
+                    })
+                } else {
+                    wrongGuesses += 1
+                    print("Wrong.")
+                }
+
+                // If too many wrong guesses
+                if wrongGuesses > maxWrongGuessCount {
+                    print("Oops, too slow! Evan is now changing spots.")
+                    wrongGuesses = 0
+                    setupForRiddle(riddle)
+                }
+            }
         } else {
 
         }
-
-        collectionView.deselectItem(at: indexPath, animated: true)
     }
-
-
 
     public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
 
@@ -263,15 +321,32 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
         }
     }
 
+    public func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard let riddle = riddle else { return }
+
+        let offsetX = scrollView.contentOffset.x
+
+        switch riddle {
+        case .evanEvanWhereAreYou:
+            guard let randIndexPath = randomIndexPath, let cell = appsCollectionView.cellForItem(at: randIndexPath) else { return }
+            cell.transform = CGAffineTransform(translationX: offsetX * 2, y: 0)
+        }
+    }
+
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         pageControl.currentPage = Int(scrollView.contentOffset.x) / Int(scrollView.frame.width)
     }
 }
 
+// MARK: - App cell touch gesture delegate
 extension AppsView: AppCellTouchGestureDelegate {
 
     public func cellDidLongTapped(cell: AppCell) {
-        startOrganisingApps()
+        if let riddle = riddle {
+
+        } else {
+            startOrganisingApps()
+        }
     }
 
     public func startOrganisingApps() {
@@ -292,6 +367,64 @@ extension AppsView: AppCellTouchGestureDelegate {
         }
     }
 
+}
+
+// MARK: - Animation functions for
+extension AppsView {
+    /// Animation for Evan is found
+    private func beginAnimatingEvanIsFound(indexPathOfEvansCell indexPath: IndexPath, inCollectionView collectionView: UICollectionView, _ completion: (() -> Void)?) {
+        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+
+        // Blocks interaction while animate Evan.
+        self.isUserInteractionEnabled = false
+        UIView.animate(withDuration: 0.1, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.2, options: .curveEaseIn, animations: {
+            cell.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
+        }, completion: { (_) in
+
+            // Expand cell
+            UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 0.2, initialSpringVelocity: 0.4, options: .curveEaseOut, animations: {
+                cell.transform = CGAffineTransform(scaleX: 1.6, y: 1.6)
+            }, completion: { (_) in
+                UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseInOut, animations: {
+                    cell.transform = CGAffineTransform.identity
+                }, completion: { (_) in
+                    self.isUserInteractionEnabled = true
+                    completion?()
+                })
+            })
+
+            // Create evan
+            let frames = [
+                UIImage(named: "Animation/tap-0")!,
+                UIImage(named: "Animation/tap-1")!,
+                UIImage(named: "Animation/tap-2")!,
+                UIImage(named: "Animation/tap-0")!,
+                UIImage(named: "Animation/tap-0")!,
+                UIImage(named: "Animation/tap-0")!,
+                UIImage(named: "Animation/tap-0")!,
+                UIImage(named: "Animation/tap-0")!
+            ]
+            let evanImageView = UIImageView(frame: cell.frame)
+            evanImageView.image = UIImage.animatedImage(with: frames, duration: 1)
+            evanImageView.layer.cornerRadius = evanImageView.bounds.width/2
+            evanImageView.alpha = 0
+            self.addSubview(evanImageView)
+
+            // Scale factor of evan. (height / width)
+            let evanScaledFactor: CGFloat = 35.0/21.0
+            let evanWidth: CGFloat = 150.0
+            let evanHeight: CGFloat = evanWidth * evanScaledFactor
+
+            UIView.animate(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
+                evanImageView.frame = CGRect(x: 0, y: self.bottomAppBar.frame.origin.y - evanHeight, width: evanWidth, height: evanHeight)
+                evanImageView.alpha = 1
+            }, completion: { (_) in
+                Utils.delay(by: 0.4, completion: {
+                    self.delegate?.shouldCongratulate()
+                })
+            })
+        })
+    }
 }
 
 

@@ -41,6 +41,12 @@ public class AppCell: UICollectionViewCell {
         }
     }
 
+    public var innerContentColor: UIColor = .white {
+        didSet {
+            innerContentView?.backgroundColor = innerContentColor
+        }
+    }
+
     /// ALL subviews should be inside the inner content view. The inner content view decides the size of the cell
     private var innerContentView: UIView!
     private var appNameLabel: UILabel!
@@ -110,7 +116,7 @@ public class AppCell: UICollectionViewCell {
     private func setup() {
         // Inner content view
         innerContentView = UIView(frame: CGRect(x: self.bounds.width/2 - AppCell.cellWidth/2, y: 0, width: AppCell.cellWidth, height: AppCell.cellWidth))
-        innerContentView.backgroundColor = .white
+        innerContentView.backgroundColor = innerContentColor
         innerContentView.layer.cornerRadius = 10
         self.addSubview(innerContentView)
 
