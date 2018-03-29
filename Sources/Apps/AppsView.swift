@@ -41,6 +41,11 @@ public class AppsView: UIView {
                 if self.waitingForEvan {
                     guard let randomIndexPath = self.randomIndexPath else { return }
 
+                    // Start wiggling the cell when in range
+                    if let cell = appsCollectionView.cellForItem(at: randomIndexPath) as? AppCell {
+                        cell.startWiggle()
+                    }
+
                     evanFallingTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false, block: { (_) in
 
                         gestureRecognizer?.isEnabled = false
@@ -52,6 +57,9 @@ public class AppsView: UIView {
                     })
                 }
             } else {
+                if let randomIndexPath = self.randomIndexPath, let cell = appsCollectionView.cellForItem(at: randomIndexPath) as? AppCell {
+                    cell.stopWiggle()
+                }
                 evanFallingTimer?.invalidate()
                 evanFallingTimer = nil
             }

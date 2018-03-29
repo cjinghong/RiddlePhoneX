@@ -325,7 +325,15 @@ public class RiddlePhoneXView: UIView {
                     // Rotate it like maddd
                     let maxRadian: CGFloat = 360.0 * CGFloat.pi / 180.0
                     let currentRadian = (maxRadian * percentage)
-                    contentView.transform = CGAffineTransform(rotationAngle: currentRadian)
+
+                    let minScale: CGFloat = 0.5
+
+                    // Current scale, with minimum of 0.5
+                    var currentScale = 1 - percentage * 2 > minScale ? 1 - percentage * 2 : minScale
+
+                    let scaleTransform = CGAffineTransform(scaleX: currentScale, y: currentScale)
+
+                    contentView.transform = CGAffineTransform(rotationAngle: currentRadian).concatenating(scaleTransform)
 
                     let correctRotationDegrees: CGFloat = 90
                     let minRadianThreshold = (correctRotationDegrees - 10) * CGFloat.pi / 180.0
