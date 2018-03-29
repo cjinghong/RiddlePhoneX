@@ -21,22 +21,24 @@ public class MessageDisplayView: UIView {
 
     private var type: MessageDisplayType = .normal
     private let animDuration: TimeInterval = 0.3
-    public var animationDirection: Direction = .expand {
-        didSet {
-            self.alpha = 0
+    public var animationDirection: Direction = .expand
 
+    private var preAnimationTransform: CGAffineTransform {
+        get {
+            var transform = CGAffineTransform.identity
             switch animationDirection {
             case .leftToRight:
-                self.transform = CGAffineTransform(translationX: -self.bounds.width/2, y: 0)
+                transform = CGAffineTransform(translationX: -self.bounds.width/2, y: 0)
             case .rightToLeft:
-                self.transform = CGAffineTransform(translationX: self.bounds.width/2, y: 0)
+                transform = CGAffineTransform(translationX: self.bounds.width/2, y: 0)
             case .topToBottom:
-                self.transform = CGAffineTransform(translationX: 0, y: -self.bounds.height)
+                transform = CGAffineTransform(translationX: 0, y: -self.bounds.height)
             case .bottomToTop:
-                self.transform = CGAffineTransform(translationX: 0, y: self.bounds.height)
+                transform = CGAffineTransform(translationX: 0, y: self.bounds.height)
             case .expand:
-                self.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+                transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
             }
+            return transform
         }
     }
 
@@ -96,12 +98,27 @@ public class MessageDisplayView: UIView {
     public func show() {
         guard let parentView = parentView, let anchoredToView = anchoredToView else { return }
 
+        self.alpha = 0
+        self.transform = preAnimationTransform
+
         parentView.insertSubview(self, belowSubview: anchoredToView)
 
         UIView.animate(withDuration: animDuration, delay: 0, options: .curveEaseInOut, animations: {
             self.alpha = 1
             self.transform = .identity
         }, completion: nil)
+    }
+
+    /// This WILL remove the message display view from the superview.
+    public func hide(_ animated: Bool = true) {
+        if animated {
+            UIView.animate(withDuration: animDuration, animations: {
+                self.alpha = 0
+                self.transform = self.preAnimationTransform
+            }, completion: { (_) in
+                self.removeFromSuperview()
+            })
+        }
     }
 
     /// Creates a `MessageDisplayView`, adds it to the `in` view, then returns the `MessageDisplayView`.
@@ -114,7 +131,7 @@ public class MessageDisplayView: UIView {
             mdv.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
             parentView.addSubview(mdv)
 
-            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+            UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseInOut, animations: {
                 mdv.alpha = 1
                 mdv.transform = .identity
             }, completion: nil)

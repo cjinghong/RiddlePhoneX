@@ -19,10 +19,25 @@ view.addSubview(subview)
 
 let mdv = MessageDisplayView(parentView: view, anchoredTo: subview, type: .success, message: "Hello everyone")
 
-Utils.delay(by: 1) {
-    mdv.animationDirection = .bottomToTop
-    mdv.show()
-}
+//Utils.delay(by: 1) {
+//    mdv.animationDirection = .bottomToTop
+//    mdv.show()
+//
+//    Utils.delay(by: 1) {
+//        mdv.animationDirection = .bottomToTop
+//        mdv.hide()
+//
+//        Utils.delay(by: 1) {
+//            mdv.animationDirection = .bottomToTop
+//            mdv.show()
+//
+//            Utils.delay(by: 1) {
+//                mdv.animationDirection = .bottomToTop
+//                mdv.hide()
+//            }
+//        }
+//    }
+//}
 
 //MessageDisplayView.show(in: view, anchoredToView: subview, message: "Evan is found", type: .success)
 
