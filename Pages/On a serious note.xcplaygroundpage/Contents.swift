@@ -7,8 +7,8 @@ var str = "Hello, playground"
 
  1. [Introduction](Introduction)
  2. [Evan Evan, Where are you?](Evan%20Evan,%20Where%20Are%20You)
- 3. **[Stop Hiding!](Stop%20Hiding)**
- 4. [On a serious note](On%20a%20serious%20note)
+ 3. [Stop Hiding!](Stop%20Hiding)
+ 4. **[On a serious note](On%20a%20serious%20note)**
  - - -
  [Previous](@previous)
  */
