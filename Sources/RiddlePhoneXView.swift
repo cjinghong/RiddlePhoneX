@@ -76,6 +76,7 @@ public class RiddlePhoneXView: UIView {
         let frameImageView = UIImageView(image: image)
         frameImageView.frame = frame
         frameImageView.contentMode = .scaleToFill
+        frameImageView.clipsToBounds = true
 
         self.mainFrame = frameImageView
         self.addSubview(frameImageView)
@@ -173,6 +174,9 @@ public class RiddlePhoneXView: UIView {
     }
 
     private func setup() {
+        self.layer.cornerRadius = self.frame.width * 0.15
+        self.clipsToBounds = true
+        
         // Main frame, containing the iPhoneX image
         createMainFrame()
 

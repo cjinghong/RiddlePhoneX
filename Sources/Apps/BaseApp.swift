@@ -23,6 +23,11 @@ public class BaseApp: UIView {
         setup(name: name, icon: icon)
     }
 
+    public init(name: String, icon: UIImage? = nil) {
+        super.init(frame: CGRect.zero)
+        setup(name: name, icon: icon)
+    }
+
     private func setup(name: String, icon: UIImage?) {
         self.name = name
         self.icon = icon
