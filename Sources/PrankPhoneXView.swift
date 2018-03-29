@@ -21,6 +21,9 @@ public class PrankPhoneXView: UIView {
     /// Wallpaper
     private var wallpaperImageView: UIImageView!
 
+    /// Swipe down for notifications
+    private var topBarView: UIView!
+    
     /// Swipe up to quit apps
     private var bottomBarView: UIView!
     /// The "line" image inside bottom bar view
@@ -73,6 +76,20 @@ public class PrankPhoneXView: UIView {
 
         self.mainFrame = frameImageView
         self.addSubview(frameImageView)
+    }
+
+    private func createTopBar() {
+        let marginTop = 53/1600 * frame.height
+        let width = 0.4975 * frame.width
+        let height = 55/1600 * frame.height
+        let topBar: UIView = UIView(frame: CGRect(x: 0, y: marginTop, width: width, height: height))
+        topBar.center.x = self.center.x
+        topBar.backgroundColor = nil
+
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(swipedDownForNotifications(_:)))
+        topBar.addGestureRecognizer(panGesture)
+
+        self.addSubview(topBar)
     }
 
     /// Inserts a transparent content view BELOW mainFrame
@@ -229,15 +246,39 @@ public class PrankPhoneXView: UIView {
     }
 
     private func setup() {
+        // Main frame, containing the iPhoneX image
         createMainFrame()
 
+        // Swipe from top for notifications and stuff
+        createTopBar()
+
+        // Content view.
         createContentView()
+
+        // Bottom bar for dismissing apps
         createBottomBarView()
 
+        // Background wallpaper
         createBackgroundWallpaper()
 
         // Show appsview (home screen)
         createAppsView()
+    }
+
+    @objc
+    private func swipedDownForNotifications(_ sender: UIPanGestureRecognizer) {
+        switch sender.state {
+        case .changed:
+            // Only when Y translate is more than 0, we do something.
+            let translateY = sender.translation(in: contentView).y
+            if translateY > 0 {
+
+            }
+        case .cancelled, .failed, .ended:
+            break
+        default:
+            break
+        }
     }
 
     @objc

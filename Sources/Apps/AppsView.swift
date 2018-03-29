@@ -256,7 +256,7 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
         let cell = cell as! AppCell
 
         // If isOrganisingApps, but cell is not wiggling, wiggle it!
-        if isOrganisingApps && !cell.wiggling {
+        if isOrganisingApps {
             cell.startWiggle()
         } else {
             cell.stopWiggle()

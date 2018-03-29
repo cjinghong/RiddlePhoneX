@@ -58,7 +58,8 @@ public class AppCell: UICollectionViewCell {
     }
 
     /// Determines if the cell should be wiggling
-    private var shouldWiggle = true
+    private var shouldWiggle = false
+    /// Stops wiggling.
     public func stopWiggle() {
         shouldWiggle = false
         Utils.delay(by: 0.2) {
@@ -70,6 +71,7 @@ public class AppCell: UICollectionViewCell {
 
     /// Start wiggling with a delay. Default is random delay
     public func startWiggle() {
+        if shouldWiggle == true { return }
         shouldWiggle = true
         animateWigglingIndefinitely()
     }

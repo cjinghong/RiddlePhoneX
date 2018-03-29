@@ -47,13 +47,6 @@ prankPhoneX.set(apps: apps)
 //prankPhoneX.uninstallAllApps()
 
 
-// Testing accessory button
-//iphoneX.showAccessoryButton(withTitle: "Done", position: .topRight) {
-//    iphoneX.showAccessoryButton(withTitle: "Test 2", position: .topLeft, action: {
-//        iphoneX.hideAccessoryButton()
-//    })
-//}
-
 
 //
 //let myVeryOwnApp: App?
