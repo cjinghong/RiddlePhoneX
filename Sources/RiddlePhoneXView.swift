@@ -305,7 +305,22 @@ public class RiddlePhoneXView: UIView {
                 // Behaviour for riddle
                 switch riddle {
                 case .evanEvanWhereAreYou:
-                    break
+                    // Evan where are you have the same behaviour as normal
+                    let translateY = sender.translation(in: self).y
+                    let percentage = translateY / self.frame.height * 2
+
+                    // If less than 0, swiping up.
+                    if percentage < 0 && 1 + percentage > 0.7 {
+                        let scale = (1 + percentage) - (percentage * 0.6)
+                        contentView.transform = CGAffineTransform(scaleX: scale, y: scale)
+                    } else if 1 + percentage <= 0.7 {
+                        // If apps view is organising apps, dont show multitask,
+                        // instead end the gesture, and end organising apps
+                        if appsView?.isOrganisingApps == true {
+                            sender.isEnabled = false
+                            appsView?.stopOrganisingApps()
+                        }
+                    }
                 case .stopHiding:
                     // Rotate it like maddd
                     let maxRadian: CGFloat = 360.0 * CGFloat.pi / 180.0

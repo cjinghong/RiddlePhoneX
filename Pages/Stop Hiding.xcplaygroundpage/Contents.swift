@@ -13,7 +13,7 @@ import PlaygroundSupport
  */
 /*:
  # Stop hiding!
- Oh gosh. There he goes again. Evan is gone. Use what you've learnt before to find him. But this time, its going to be even harder.
+ Oh gosh. There he goes again. Evan is gone. Use what you've learnt before to find him. But this time, its going to be even harder. But of course, there's a "Solve" button on the top lefts if you feel like giving up 😏
 
  祝你好运!
  */

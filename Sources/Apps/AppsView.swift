@@ -43,7 +43,6 @@ public class AppsView: UIView {
 
                     evanFallingTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false, block: { (_) in
 
-                        self.evanFound = true
                         gestureRecognizer?.isEnabled = false
 
                         self.beginAnimatingEvanIsFound(indexPathOfEvansCell: randomIndexPath, inCollectionView: self.appsCollectionView, {
@@ -355,7 +354,7 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
                 
                 // If too many wrong guesses
                 if wrongGuesses > maxWrongGuessCount {
-                    print("Oops, too slow! Evan is now changing spots.")
+                    self.showMessageForTooManyTries()
                     wrongGuesses = 0
                     setupForRiddle(riddle)
                 }
@@ -435,7 +434,7 @@ extension AppsView: AppCellTouchGestureDelegate {
 
 }
 
-// MARK: - Animation functions for
+// MARK: - Animation functions for Riddles
 extension AppsView {
 
     private func solveForEvanStopHiding(indexPathOfEvansCell indexPath: IndexPath, inCollectionView collectionView: UICollectionView, _ completion: (() -> Void)?) {
@@ -508,10 +507,12 @@ extension AppsView {
                 evanImageView.alpha = 1
             }, completion: { (_) in
                 Utils.delay(by: 0.4, completion: {
+                    self.evanFound = true
                     self.delegate?.shouldCongratulate()
+                    self.showMessageForSuccess()
 
-                    // Evan walks away after 5s
-                    Utils.delay(by: 5, completion: {
+                    // Evan walks away after 3s
+                    Utils.delay(by: 3, completion: {
                         evanImageView.image = UIImage.animatedImageNamed("Animation/walk-", duration: 1)
                         UIView.animate(withDuration: 2.5, animations: {
                             evanImageView.transform = CGAffineTransform(translationX: self.bounds.maxX + 100, y: 0)
@@ -521,6 +522,17 @@ extension AppsView {
             })
         })
     }
+
+    private func showMessageForSuccess() {
+        let mdv = MessageDisplayView(parentView: self, anchoredTo: self.bottomAppBar, type: .success, message: "You found Evan!")
+        mdv.show().hide(true, after: 10)
+    }
+
+    private func showMessageForTooManyTries() {
+        let mdv = MessageDisplayView(parentView: self, anchoredTo: self.bottomAppBar, type: .failure, message: "Too many tries.\nEvan is changing place.")
+        mdv.show().hide(true, after: 8)
+    }
+
 }
 
 

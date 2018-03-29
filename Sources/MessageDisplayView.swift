@@ -53,8 +53,8 @@ public class MessageDisplayView: UIView {
     /// The `MessageDisplayView will be laid on top of the given UIView, and vertically centered
     /// Keep in mind the `anchoredTo` view MUST be one of the subview(s) of the `parentView` that the MessageDisplayView belongs to.
     public init(parentView: UIView, anchoredTo view: UIView, type: MessageDisplayType = .normal, message: String) {
-        let width: CGFloat = 200
-        let height: CGFloat = 60
+        let width: CGFloat = 210
+        let height: CGFloat = 50
         super.init(frame: CGRect(x: 0, y: 0, width: width, height: height))
 
         self.center = view.center
@@ -78,7 +78,7 @@ public class MessageDisplayView: UIView {
         case .success:
             color = .mountainMeadow
         case .failure:
-            color = .mountainMeadow
+            color = .amourRed
         case .normal:
             color = .joustBlue
         }
@@ -87,6 +87,7 @@ public class MessageDisplayView: UIView {
         // Setup label
         label = UILabel(frame: self.bounds)
         label.textAlignment = .center
+        label.numberOfLines = 0
         label.textColor = .white
         label.font = UIFont.systemFont(ofSize: 20, weight: .medium)
         label.adjustsFontSizeToFitWidth = true
@@ -95,27 +96,29 @@ public class MessageDisplayView: UIView {
         self.addSubview(label)
     }
 
-    public func show() {
-        guard let parentView = parentView, let anchoredToView = anchoredToView else { return }
+    public func show(after delay: TimeInterval = 0) -> MessageDisplayView {
+        guard let parentView = parentView, let anchoredToView = anchoredToView else { return self }
 
         self.alpha = 0
         self.transform = preAnimationTransform
 
         parentView.insertSubview(self, belowSubview: anchoredToView)
 
-        UIView.animate(withDuration: animDuration, delay: 0, options: .curveEaseInOut, animations: {
+        UIView.animate(withDuration: animDuration, delay: delay, options: .curveEaseInOut, animations: {
             self.alpha = 1
             self.transform = .identity
         }, completion: nil)
+
+        return self
     }
 
     /// This WILL remove the message display view from the superview.
-    public func hide(_ animated: Bool = true) {
+    public func hide(_ animated: Bool = true, after delay: TimeInterval = 0) {
         if animated {
-            UIView.animate(withDuration: animDuration, animations: {
+            UIView.animate(withDuration: animDuration, delay: delay, options: .curveEaseInOut, animations: {
                 self.alpha = 0
                 self.transform = self.preAnimationTransform
-            }, completion: { (_) in
+            }, completion: { _ in
                 self.removeFromSuperview()
             })
         }

@@ -23,7 +23,7 @@ let riddlePhoneX = RiddlePhoneXView(diagonal: 800)
 
  Oh god that is an awful looking background. Let's change the wallpaper. Try uncommenting the lines below and explore the different wallpapers that is available.
  */
-//riddlePhoneX.set(wallpaper: Wallpaper.desert)
+riddlePhoneX.set(wallpaper: Wallpaper.desert)
 //riddlePhoneX.set(wallpaper: Wallpaper.aurora)
 //riddlePhoneX.set(wallpaper: Wallpaper.mountains)
 /*:
@@ -39,7 +39,6 @@ let riddlePhoneX = RiddlePhoneXView(diagonal: 800)
 
  I actually don't know the answer to that one. It's probably called an *Endroid*, or something. Nevermind let's start installing some apps!
  */
-
 // I'm creating 30 apps using what's called a for-loop, and then installing all 30 apps into my brand new prankPhoneX Why? Because I can, that's why.
 var apps = [BaseApp]()
 for i in 0..<30 {
@@ -54,7 +53,7 @@ riddlePhoneX.set(apps: apps)
  You know what? 30 apps that does nothing doesn't really get me excited, you know what I mean? Let's uninstall them.
  */
 // Uninstalling all existing apps
-//riddlePhoneX.uninstallAllApps()
+riddlePhoneX.uninstallAllApps()
 /*:
  #### Now that you've gotten a hang of it, let's get into the game...
  */

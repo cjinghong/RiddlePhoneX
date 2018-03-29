@@ -13,7 +13,7 @@ import PlaygroundSupport
  */
 /*:
  # Evan Evan, where are you?
- Your job is to find **Evan**. I won't tell you how exactly, but I've provided some hints. Whenever you get stuck, just press on the *Solve* button on the top left of the RiddlePhoneX, to get the answer.
+ Your job is to find **Evan**. I won't tell you how exactly, but I've provided some hints. Whenever you get stuck, just press on the *Solve* button on the top left of the RiddlePhoneX to harness the power of Steve Jobs and solve the puzzle immediately.
 
  Goodluck!
  */
