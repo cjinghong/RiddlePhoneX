@@ -5,7 +5,7 @@ public enum Position {
     case topLeft, topRight
 }
 
-public class PrankPhoneXView: UIView {
+public class RiddlePhoneXView: UIView {
 
     private var mainFrame: UIView!
 
@@ -365,7 +365,7 @@ public class PrankPhoneXView: UIView {
     }
 }
 
-extension PrankPhoneXView: AppsViewDelegate {
+extension RiddlePhoneXView: AppsViewDelegate {
 
     /// Action always includes hiding itself. Hides itself before calling completion block. So if the button needs to be displayed again, just call `shouldShowAccessoryButton` in the completion
     public func shouldShowAccessoryButton(withTitle title: String, position: Position, action: @escaping (() -> Void)) {

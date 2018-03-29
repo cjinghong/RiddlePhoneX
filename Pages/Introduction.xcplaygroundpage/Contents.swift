@@ -10,22 +10,22 @@ import PlaygroundSupport
 
  */
 /*:
- # Prankphone X
+ # RiddlePhone X
 
- This project is exactly the same as an iPhone X. But only with several slightly-unexpected features, or shall I say that the entire device is full of unexpected twist and turns..?
+ I know this *looks* like an iPhoneX, but trust me, it's not. This is a riddle game, with **lots** of unexpected twist an turns. Enjoy.
 */
 /*:
- ## ACT 1 - Welcome to the Prankphone X.
+ ## Welcome to the RiddlePhone X.
 */
-let prankPhoneX = PrankPhoneXView(diagonal: 800)
+let riddlePhoneX = RiddlePhoneXView(diagonal: 800)
 /*:
  ### A beautiful wallpaper
 
  Oh god that was an awful looking background. Let's try changing the wallpapers. Try uncommenting the lines below and explore the different wallpapers that is available.
  */
-prankPhoneX.set(wallpaper: Wallpaper.desert)
-//prankPhoneX.set(wallpaper: Wallpaper.aurora)
-//prankPhoneX.set(wallpaper: Wallpaper.mountains)
+riddlePhoneX.set(wallpaper: Wallpaper.desert)
+//riddlePhoneX.set(wallpaper: Wallpaper.aurora)
+//riddlePhoneX.set(wallpaper: Wallpaper.mountains)
 /*:
  ### What the apps?!
 
@@ -46,14 +46,15 @@ for i in 0..<30 {
     apps.append(BaseApp(contentView: UIView(), name: "\(i)"))
 }
 
-prankPhoneX.set(apps: apps)
+// Actually installing the apps
+riddlePhoneX.set(apps: apps)
 /*:
  ### Starting fresh
 
  You know what? 30 apps that does nothing doesn't really get me excited, you know what I mean? Let's uninstall them.
  */
 // Uninstalling all existing apps
-//prankPhoneX.uninstallAllApps()
+//riddlePhoneX.uninstallAllApps()
 /*:
  #### Now that you've gotten a hang of it, let's get into the game...
  */
@@ -69,4 +70,4 @@ prankPhoneX.set(apps: apps)
 
 
 
-PlaygroundPage.current.liveView = prankPhoneX
+PlaygroundPage.current.liveView = riddlePhoneX

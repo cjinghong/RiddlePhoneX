@@ -254,21 +254,14 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AppCell", for: indexPath) as! AppCell
         cell.delegate = self
         cell.layer.cornerRadius = 10
-
+        cell.innerContentColor = UIColor.randomFlatColor()
+        
         // Setup cell
         if collectionView == self.appsCollectionView {
             cell.app = self.apps[indexPath.row]
         } else {
             cell.nameLabelHidden = true
             cell.app = self.bottomApps[indexPath.row]
-        }
-
-        // If is in riddle, change colour of cell
-        if let riddle = riddle {
-            switch riddle {
-            case .evanEvanWhereAreYou:
-                cell.innerContentColor = UIColor.randomFlatColor()
-            }
         }
 
         return cell

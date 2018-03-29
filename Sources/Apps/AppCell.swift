@@ -41,6 +41,8 @@ public class AppCell: UICollectionViewCell {
         }
     }
 
+    /// The background colour of the rounded rectangle of the app icon.
+    // If an image is available, the background colour will NOT be visible
     public var innerContentColor: UIColor = .white {
         didSet {
             innerContentView?.backgroundColor = innerContentColor

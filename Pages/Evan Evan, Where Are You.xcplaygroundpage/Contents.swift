@@ -5,13 +5,13 @@ import PlaygroundSupport
 
 /*:
  # Evan Evan, where are you?
- Your job is to find **Evan**. I won't tell you how exactly, but there are hints written all over the place. Whenever you get stuck, just press on the *Solve* button on the top left of the PrankPhoneX.
+ Your job is to find **Evan**. I won't tell you how exactly, but there are hints written all over the place. Whenever you get stuck, just press on the *Solve* button on the top left of the RiddlePhoneX.
 
  Goodluck!
  */
-let prankPhoneX = PrankPhoneXView(diagonal: 800)
-prankPhoneX.set(wallpaper: Wallpaper.aurora)
-prankPhoneX.setupForRiddle(Riddle.evanEvanWhereAreYou)
+let riddlePhoneX = RiddlePhoneXView(diagonal: 800)
+riddlePhoneX.set(wallpaper: Wallpaper.aurora)
+riddlePhoneX.setupForRiddle(Riddle.evanEvanWhereAreYou)
 
 /*:
  ## Hint #1
@@ -29,4 +29,4 @@ prankPhoneX.setupForRiddle(Riddle.evanEvanWhereAreYou)
 
 
 
-PlaygroundPage.current.liveView = prankPhoneX
+PlaygroundPage.current.liveView = riddlePhoneX
