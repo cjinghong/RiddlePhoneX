@@ -37,7 +37,6 @@ public class AppsView: UIView {
         // If shouldFall is different from the original value, set/cancel timer as needed
         if shouldFall != _evanShouldFall {
             if shouldFall == true {
-                print("Scheduled timer")
                 evanFallingTimer?.invalidate()
                 if self.waitingForEvan {
                     guard let randomIndexPath = self.randomIndexPath else { return }
@@ -54,7 +53,6 @@ public class AppsView: UIView {
                     })
                 }
             } else {
-                print("Invalidated timer")
                 evanFallingTimer?.invalidate()
                 evanFallingTimer = nil
             }
@@ -333,7 +331,6 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
                         })
                     } else {
                         wrongGuesses += 1
-                        print("Wrong.")
                     }
                 } else if riddle == .stopHiding {
 
@@ -355,33 +352,7 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
                         print("Wrong.")
                     }
                 }
-
-                // When clicked on the cell Evan belonged to:
-//                if indexPath == randomIndexPath {
-//
-//                    if riddle == .stopHiding {
-//                        // If stop hiding,
-//                        // cell expands,
-//                        // `waitingForEvan` becomes true,
-//                        // and waits for 90 degrees turn.
-//                        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
-//                        UIView.animate(withDuration: 0.3, animations: {
-//                            cell.transform = CGAffineTransform(scaleX: 1.5, y: 1.5)
-//                        }, completion: nil)
-//                        waitingForEvan = true
-//                    } else {
-//                        evanFound = true
-//                        print("You found Evan!")
-//
-//                        beginAnimatingEvanIsFound(indexPathOfEvansCell: indexPath, inCollectionView: collectionView, {
-//                            self.delegate?.shouldHideAccessoryButton()
-//                        })
-//                    }
-//                } else {
-//                    wrongGuesses += 1
-//                    print("Wrong.")
-//                }
-
+                
                 // If too many wrong guesses
                 if wrongGuesses > maxWrongGuessCount {
                     print("Oops, too slow! Evan is now changing spots.")
