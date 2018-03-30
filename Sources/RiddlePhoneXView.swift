@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import AVFoundation
 
 public enum Position {
     case topLeft, topRight
@@ -8,6 +9,11 @@ public enum Position {
 public class RiddlePhoneXView: UIView {
 
     private var mainFrame: UIView!
+
+    private var bgmPlayer: AVAudioPlayer?
+    private var soundEffectPlayer: AVAudioPlayer?
+    private var secondarySoundEffectPlayer: AVAudioPlayer?
+    private var volume: Float = 1
 
     /// The current riddle
     private var riddle: Riddle?
@@ -18,7 +24,6 @@ public class RiddlePhoneXView: UIView {
     /// Content view.
     /// All subviews should be added into the content view.
     private(set) var contentView: UIView!
-
     private var appsView: AppsView!
 
     /// Wallpaper
@@ -196,6 +201,66 @@ public class RiddlePhoneXView: UIView {
         createAppsView()
     }
 
+    // MARK: - Music and sounds
+    private func playBackgroundMusic() {
+        guard let url = Bundle.main.url(forResource: "Sounds/bgm", withExtension: "mp3") else { return }
+        do {
+            self.bgmPlayer = try AVAudioPlayer(contentsOf: url)
+            self.bgmPlayer?.volume = self.volume
+            self.bgmPlayer?.numberOfLoops = -1
+
+            if self.bgmPlayer?.prepareToPlay() == true {
+                self.bgmPlayer?.play()
+            }
+        } catch {
+            print("\(error.localizedDescription)")
+        }
+    }
+
+    public func playSecondaryBgm(url: URL, repeated: Bool = false) {
+        do {
+            self.secondarySoundEffectPlayer = try AVAudioPlayer(contentsOf: url)
+            self.secondarySoundEffectPlayer?.volume = self.volume
+            self.secondarySoundEffectPlayer?.numberOfLoops = repeated ? -1 : 0
+
+            if self.secondarySoundEffectPlayer?.prepareToPlay() == true {
+                self.secondarySoundEffectPlayer?.play()
+            }
+        } catch {
+            print("\(error.localizedDescription)")
+        }
+    }
+
+    public func playSoundEffect(url: URL, repeated: Bool = false) {
+        do {
+            self.soundEffectPlayer = try AVAudioPlayer(contentsOf: url)
+            self.soundEffectPlayer?.volume = self.volume
+            self.secondarySoundEffectPlayer?.numberOfLoops = repeated ? -1 : 0
+
+            if self.soundEffectPlayer?.prepareToPlay() == true {
+                self.soundEffectPlayer?.play()
+            }
+        } catch {
+            print("\(error.localizedDescription)")
+        }
+    }
+
+    private func fadeVolume(forPlayer player: AVAudioPlayer?) {
+        guard let player = player else { return }
+        if (player.volume > 0.1) {
+            player.volume = player.volume - 0.1
+            Utils.delay(by: 0.1, completion: {
+                self.fadeVolume(forPlayer: player)
+            })
+        } else {
+            // Stop and get the sound ready for playing again
+            player.stop()
+            player.currentTime = 0
+            player.prepareToPlay()
+            player.volume = self.volume
+        }
+    }
+
     // MARK: - Show hide components functions
     private func showAccessoryButton(withTitle title: String, position: Position, action: (() -> Void)?) {
         let mainFrameWidth = self.mainFrame.frame.width
@@ -278,6 +343,13 @@ public class RiddlePhoneXView: UIView {
         confetti.isUserInteractionEnabled = false
         confetti.startConfetti()
         self.contentView.addSubview(confetti)
+
+        if let url = Bundle.main.url(forResource: "Sounds/applause", withExtension: "mp3") {
+
+            // Fade main player volume, applause.
+            fadeVolume(forPlayer: bgmPlayer)
+            playSecondaryBgm(url: url)
+        }
     }
 
     @objc
@@ -420,6 +492,9 @@ public class RiddlePhoneXView: UIView {
 
     public func setupForRiddle(_ riddle: Riddle) {
         self.riddle = riddle
+
+        playBackgroundMusic()
+
         switch riddle {
         case .evanEvanWhereAreYou, .stopHiding:
             appsView.setupForRiddle(riddle)
@@ -440,6 +515,10 @@ extension RiddlePhoneXView: AppsViewDelegate {
 
     public func shouldCongratulate() {
         self.congratulate()
+    }
+
+    public func shouldPlaySoundEffect(soundUrl url: URL) {
+        self.playSecondaryBgm(url: url)
     }
 
     public func contentViewShouldReturnToOriginal(delay: TimeInterval, _ completion: @escaping (() -> Void)) {

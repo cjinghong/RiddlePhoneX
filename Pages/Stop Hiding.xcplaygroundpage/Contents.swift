@@ -42,7 +42,7 @@ riddlePhoneX.setupForRiddle(Riddle.stopHiding)
 //:
 /*:
  ## Hint #3
- Swipe from the bottom, like an iPhone X to blow your mind. Now refer back to **Hint #1**
+ Swipe from the bottom like an iPhone X to blow your mind. Now refer back to **Hint #1**
  */
 
 

@@ -8,6 +8,8 @@ public protocol AppsViewDelegate: class {
     func shouldCongratulate()
     func contentViewShouldRotateBy(_ degrees: CGFloat, delay: TimeInterval, _ completion: @escaping (() -> Void))
     func contentViewShouldReturnToOriginal(delay: TimeInterval, _ completion: @escaping (() -> Void))
+
+    func shouldPlaySoundEffect(soundUrl url: URL)
 }
 
 /// Screen containing scrollable apps.
@@ -44,9 +46,17 @@ public class AppsView: UIView {
                     // Start wiggling the cell when in range
                     if let cell = appsCollectionView.cellForItem(at: randomIndexPath) as? AppCell {
                         cell.startWiggle()
+                        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+                            cell.transform = CGAffineTransform(scaleX: 2.4, y: 2.4)
+                        }, completion: nil)
                     }
 
                     evanFallingTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false, block: { (_) in
+
+                        // Stops wiggle
+                        if let cell = self.appsCollectionView.cellForItem(at: randomIndexPath) as? AppCell {
+                            cell.stopWiggle()
+                        }
 
                         gestureRecognizer?.isEnabled = false
 
@@ -331,7 +341,6 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
                 if riddle == .evanEvanWhereAreYou {
                     if indexPath == randomIndexPath {
                         evanFound = true
-                        print("You found Evan!")
 
                         beginAnimatingEvanIsFound(indexPathOfEvansCell: indexPath, inCollectionView: collectionView, {
                             self.delegate?.shouldHideAccessoryButton()
@@ -347,6 +356,11 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
                             cell.transform = CGAffineTransform(scaleX: self.cellExpansionScale, y: self.cellExpansionScale)
                         }, completion: nil)
                         waitingForEvan = true
+
+                        // Play cell growing sound
+                        if let url = Bundle.main.url(forResource: "Sounds/grow", withExtension: "mp3") {
+                            delegate?.shouldPlaySoundEffect(soundUrl: url)
+                        }
                     } else {
                         // Shirnk previously expanded cell, if exist.
                         guard let randomIndexPath = randomIndexPath, let cell = collectionView.cellForItem(at: randomIndexPath) else { return }
@@ -447,8 +461,14 @@ extension AppsView {
 
     private func solveForEvanStopHiding(indexPathOfEvansCell indexPath: IndexPath, inCollectionView collectionView: UICollectionView, _ completion: (() -> Void)?) {
 
-        // Expand Cell, waits for Evan
         guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+
+        // Play cell growing sound
+        if let url = Bundle.main.url(forResource: "Sounds/grow", withExtension: "mp3") {
+            delegate?.shouldPlaySoundEffect(soundUrl: url)
+        }
+
+        // Expand Cell, waits for Evan
         cell.transform = CGAffineTransform.identity
         UIView.animate(withDuration: 0.3, animations: {
             cell.transform = CGAffineTransform(scaleX: self.cellExpansionScale, y: self.cellExpansionScale)
@@ -457,6 +477,14 @@ extension AppsView {
 
         // Spin content view around
         delegate?.contentViewShouldRotateBy(90, delay: 1, {
+            // Start wiggling the cell when in range
+            if let randomIndexPath = self.randomIndexPath, let cell = self.appsCollectionView.cellForItem(at: randomIndexPath) as? AppCell {
+                cell.startWiggle()
+                UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+                    cell.transform = CGAffineTransform(scaleX: 2.4, y: 2.4)
+                }, completion: nil)
+            }
+            
             // Return to original
             self.delegate?.contentViewShouldReturnToOriginal(delay: 3, {
                 // Drop evan
@@ -469,6 +497,11 @@ extension AppsView {
     /// Animation for Evan is found
     private func beginAnimatingEvanIsFound(indexPathOfEvansCell indexPath: IndexPath, inCollectionView collectionView: UICollectionView, _ completion: (() -> Void)?) {
         guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+
+        // Play evan blob sound
+        if let url = Bundle.main.url(forResource: "Sounds/blop", withExtension: "mp3") {
+            self.delegate?.shouldPlaySoundEffect(soundUrl: url)
+        }
 
         // Blocks interaction while animate Evan.
         self.isUserInteractionEnabled = false
@@ -524,7 +557,11 @@ extension AppsView {
                         evanImageView.image = UIImage.animatedImageNamed("Animation/walk-", duration: 1)
                         UIView.animate(withDuration: 2.5, animations: {
                             evanImageView.transform = CGAffineTransform(translationX: self.bounds.maxX + 100, y: 0)
-                        }, completion: nil)
+                        }, completion: { _ in
+                            // On completion, evan stands and face the other way.
+                            evanImageView.image = UIImage.animatedImage(with: frames, duration: 1)
+                            evanImageView.transform = CGAffineTransform(scaleX: -1, y: 0)
+                        })
                     })
                 })
             })
@@ -539,6 +576,10 @@ extension AppsView {
     private func showMessageForTooManyTries() {
         let mdv = MessageDisplayView(parentView: self, anchoredTo: self.bottomAppBar, type: .failure, message: "Too many tries.\nEvan is changing place.")
         mdv.show().hide(true, after: 8)
+
+        if let url = Bundle.main.url(forResource: "Sounds/aw", withExtension: "mp3") {
+            delegate?.shouldPlaySoundEffect(soundUrl: url)
+        }
     }
 
 }

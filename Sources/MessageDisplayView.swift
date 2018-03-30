@@ -89,7 +89,7 @@ public class MessageDisplayView: UIView {
         label.textAlignment = .center
         label.numberOfLines = 0
         label.textColor = .white
-        label.font = UIFont.systemFont(ofSize: 20, weight: .medium)
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.adjustsFontSizeToFitWidth = true
         label.text = message
 
