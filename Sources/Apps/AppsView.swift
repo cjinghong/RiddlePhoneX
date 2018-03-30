@@ -370,7 +370,6 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
                         waitingForEvan = false
 
                         wrongGuesses += 1
-                        print("Wrong.")
                     }
                 }
                 

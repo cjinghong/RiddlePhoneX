@@ -21,6 +21,8 @@ public class RiddlePhoneXView: UIView {
     /// Accessory button on the top left of the notch
     private(set) var topAccessoryButton: UIButton?
 
+    private var notificationsView: UIView!
+
     /// Content view.
     /// All subviews should be added into the content view.
     private(set) var contentView: UIView!
@@ -28,6 +30,8 @@ public class RiddlePhoneXView: UIView {
 
     /// Wallpaper
     private var wallpaperImageView: UIImageView!
+    /// Lockscreen
+    private var lockscreenImageView: UIImageView!
 
     /// Swipe down for notifications
     private var topBarView: UIView!
@@ -178,6 +182,82 @@ public class RiddlePhoneXView: UIView {
         hidesBottomBar()
     }
 
+    private var dateTimer: Timer?
+    private func createNotificationsView() {
+        notificationsView = UIView(frame: contentView.frame)
+        lockscreenImageView = UIImageView(frame: notificationsView.bounds)
+        lockscreenImageView.image = Wallpaper.desert.image
+        notificationsView.addSubview(lockscreenImageView)
+
+        // Formatters
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateFormat = "h:mm"
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEEE, dd MMMM"
+
+        // Time
+        let timeLabel: UILabel = UILabel(frame: CGRect(x: 0, y: 50, width: notificationsView.bounds.width, height: 80))
+        timeLabel.font = UIFont.systemFont(ofSize: 80, weight: .thin)
+        timeLabel.textAlignment = .center
+        timeLabel.textColor = .white
+        timeLabel.text = timeFormatter.string(from: Date())
+        notificationsView.addSubview(timeLabel)
+
+        // Date
+        let dateLabel: UILabel = UILabel(frame: CGRect(x: 0, y: timeLabel.frame.maxY, width: notificationsView.bounds.width, height: 18))
+        dateLabel.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+        dateLabel.textAlignment = .center
+        dateLabel.textColor = .white
+        dateLabel.text = dateFormatter.string(from: Date())
+        notificationsView.addSubview(dateLabel)
+
+        // Timer
+        dateTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true, block: { (_) in
+            timeLabel.text = timeFormatter.string(from: Date())
+            dateLabel.text = dateFormatter.string(from: Date())
+        })
+
+        // Credits
+        let creditsLabel: UILabel = UILabel(frame: CGRect(x: 0, y: dateLabel.frame.maxY + 40, width: notificationsView.bounds.width, height: 20))
+        creditsLabel.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        creditsLabel.textAlignment = .center
+        creditsLabel.textColor = .white
+        creditsLabel.text = "Credits"
+        notificationsView.addSubview(creditsLabel)
+
+        // Actual credits
+        let credits: UITextView = UITextView(frame: CGRect(x: 0, y: creditsLabel.frame.maxY + 10, width: notificationsView.bounds.width, height: notificationsView.bounds.height - creditsLabel.frame.maxY - 10))
+        credits.font = UIFont.systemFont(ofSize: 16)
+        credits.textAlignment = .center
+        credits.textColor = .white
+        credits.backgroundColor = nil
+
+        let string =
+            "Background music by Eric Matyas\nConfetti by SAConfettiView\nEvan animations by Chan Jing Hong" as NSString
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+        let attrString = NSMutableAttributedString(string: string as String, attributes: [NSAttributedStringKey.font : UIFont.systemFont(ofSize: 16),  NSAttributedStringKey.foregroundColor : UIColor.white, NSAttributedStringKey.paragraphStyle: paragraphStyle])
+        let boldAttributes = [NSAttributedStringKey.font : UIFont.boldSystemFont(ofSize: 16)]
+        // Part of string to be bold
+        attrString.addAttributes(boldAttributes, range: string.range(of: "Background music"))
+        attrString.addAttributes(boldAttributes, range: string.range(of: "Confetti"))
+        attrString.addAttributes(boldAttributes, range: string.range(of: "Evan animations"))
+        credits.attributedText = attrString
+
+        notificationsView.addSubview(credits)
+
+
+        // Gesture
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(swipedUpDismissNotifications(_:)))
+        notificationsView.addGestureRecognizer(panGesture)
+
+        // Hides notifications view
+        notificationsView.transform = CGAffineTransform(translationX: 0, y: -notificationsView.frame.height)
+        self.addSubview(notificationsView)
+        self.insertSubview(notificationsView, belowSubview: mainFrame)
+    }
+
     private func setup() {
         self.layer.cornerRadius = self.frame.width * 0.15
         self.clipsToBounds = true
@@ -199,6 +279,9 @@ public class RiddlePhoneXView: UIView {
 
         // Show appsview (home screen)
         createAppsView()
+
+        // Create notifications view
+        createNotificationsView()
     }
 
     // MARK: - Music and sounds
@@ -353,15 +436,63 @@ public class RiddlePhoneXView: UIView {
     }
 
     @objc
-    private func swipedDownForNotifications(_ sender: UIPanGestureRecognizer) {
+    private func swipedUpDismissNotifications(_ sender: UIPanGestureRecognizer) {
+
+        let translateY = sender.translation(in: contentView).y
+        let percentage = abs(translateY / contentView.bounds.height)
         switch sender.state {
         case .changed:
             // Only when Y translate is more than 0, we do something.
-            let translateY = sender.translation(in: contentView).y
-            if translateY > 0 {
-
+            if translateY < 0 {
+                // Negative translation, swiping up
+                notificationsView.transform = CGAffineTransform(translationX: 0,
+                                                                y: -(contentView.bounds.height * percentage + 20))
             }
         case .cancelled, .failed, .ended:
+            // If above 30% of the content height, animate up
+            if percentage > 0.3 {
+                UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseOut, animations: {
+                    self.notificationsView.transform = CGAffineTransform(translationX: 0, y: -self.notificationsView.bounds.height)
+                }, completion: nil)
+            } else {
+                UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseOut, animations: {
+                    self.notificationsView.transform = .identity
+                }, completion: nil)
+            }
+            break
+        default:
+            break
+        }
+    }
+
+    @objc
+    private func swipedDownForNotifications(_ sender: UIPanGestureRecognizer) {
+
+        if self.notificationsView.transform == .identity {
+            // Unable to swipe down somemore.
+            return
+        }
+
+        let translateY = sender.translation(in: contentView).y
+        let percentage = abs(translateY / contentView.bounds.height)
+
+        switch sender.state {
+        case .changed:
+            // Only when Y translate is more than 0, we do something.
+            if translateY > 0 {
+                notificationsView.transform = CGAffineTransform(translationX: 0, y: contentView.bounds.height * (percentage - 1) + 20)
+            }
+        case .cancelled, .failed, .ended:
+            // If above 30% of the content height, animate down
+            if percentage > 0.3 {
+                UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseOut, animations: {
+                    self.notificationsView.transform = .identity
+                }, completion: nil)
+            } else {
+                UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseOut, animations: {
+                    self.notificationsView.transform = CGAffineTransform(translationX: 0, y: -self.notificationsView.bounds.height)
+                }, completion: nil)
+            }
             break
         default:
             break
@@ -468,6 +599,10 @@ public class RiddlePhoneXView: UIView {
     // MARK: - Public methods
     public func set(wallpaper: Wallpaper) {
         wallpaperImageView.image = wallpaper.image
+    }
+
+    public func set(lockscreen: Wallpaper) {
+        lockscreenImageView.image = lockscreen.image
     }
 
     /// Sets the default apps. No install animation will be shown

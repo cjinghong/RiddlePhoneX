@@ -18,6 +18,11 @@ var str = "Hello, playground"
 
  Thanks for reviewing my submission, I hope you've enjoyed playing with this Playground as much as I enjoyed making it.
  */
+/*:
+ ## Some more features to point out (if you haven't discover them already)
+ - Tap and hold the apps to *wiggle* them
+ - Swipe down from the top to see *credits*
+ */
 let riddlePhoneX = RiddlePhoneXView(diagonal: 800)
 riddlePhoneX.set(wallpaper: Wallpaper(fromImage: UIImage(named: "Wallpapers/wwdc18")!))
 
