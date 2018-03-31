@@ -23,9 +23,12 @@ let riddlePhoneX = RiddlePhoneXView(diagonal: 800)
 
  Oh god that is an awful looking background. Let's change the wallpaper. Try uncommenting the lines below and explore the different wallpapers that is available.
  */
-//riddlePhoneX.set(wallpaper: Wallpaper.desert)
+
+riddlePhoneX.set(wallpaper: Wallpaper.desert)
 //riddlePhoneX.set(wallpaper: Wallpaper.aurora)
-riddlePhoneX.set(wallpaper: Wallpaper.mountains)
+//riddlePhoneX.set(wallpaper: Wallpaper.mountains)
+
+
 /*:
  ### What the apps?!
 
