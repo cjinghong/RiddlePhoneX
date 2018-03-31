@@ -227,6 +227,7 @@ public class RiddlePhoneXView: UIView {
 
         // Actual credits
         let credits: UITextView = UITextView(frame: CGRect(x: 0, y: creditsLabel.frame.maxY + 10, width: notificationsView.bounds.width, height: notificationsView.bounds.height - creditsLabel.frame.maxY - 10))
+        credits.isEditable = false
         credits.font = UIFont.systemFont(ofSize: 16)
         credits.textAlignment = .center
         credits.textColor = .white
@@ -667,7 +668,9 @@ extension RiddlePhoneXView: AppsViewDelegate {
     public func contentViewShouldRotateBy(_ degrees: CGFloat, delay: TimeInterval, _ completion: @escaping (() -> Void)) {
         UIView.animate(withDuration: 1, delay: delay, usingSpringWithDamping: 0.4, initialSpringVelocity: 0.5, options: [.curveEaseIn], animations: { [weak self] in
             let radian = degrees * CGFloat.pi / 180.0
-            self?.contentView.transform = CGAffineTransform(rotationAngle: radian)
+            let scale: CGFloat = 0.5
+
+            self?.contentView.transform = CGAffineTransform(rotationAngle: radian).concatenating(CGAffineTransform(scaleX: scale, y: scale))
             }, completion: { _ in
                 completion()
         })
