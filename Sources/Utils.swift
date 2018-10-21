@@ -89,7 +89,7 @@ public class ClosureSleeve {
 }
 
 extension UIControl {
-    func addAction(for controlEvents: UIControlEvents, action: @escaping () -> ()) {
+    func addAction(for controlEvents: UIControl.Event, action: @escaping () -> ()) {
         let sleeve = ClosureSleeve(attachTo: self, closure: action)
         addTarget(sleeve, action: #selector(ClosureSleeve.invoke), for: controlEvents)
     }

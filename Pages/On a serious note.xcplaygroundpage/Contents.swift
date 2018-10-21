@@ -24,9 +24,11 @@ var str = "Hello, playground"
  - Swipe down from the top to see *credits*
  */
 let riddlePhoneX = RiddlePhoneXView(diagonal: 800)
+
+
 riddlePhoneX.set(wallpaper: Wallpaper(fromImage: UIImage(named: "Wallpapers/wwdc18")!))
 
-let apps: [BaseApp] = [
+var apps: [BaseApp] = [
     BaseApp(name: "Hope", icon: UIImage(named: "AppIcon/W")),
     BaseApp(name: "That", icon: UIImage(named: "AppIcon/W")),
     BaseApp(name: "I", icon: UIImage(named: "AppIcon/D")),
@@ -37,6 +39,7 @@ let apps: [BaseApp] = [
     BaseApp(name: "Scholarship", icon: UIImage(named: "AppIcon/1")),
     BaseApp(name: "This Year!", icon: UIImage(named: "AppIcon/8"))
 ]
+
 
 riddlePhoneX.set(apps: apps)
 

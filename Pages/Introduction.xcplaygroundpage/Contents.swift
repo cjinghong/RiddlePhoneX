@@ -26,7 +26,7 @@ let riddlePhoneX = RiddlePhoneXView(diagonal: 800)
 
 //riddlePhoneX.set(wallpaper: Wallpaper.desert)
 //riddlePhoneX.set(wallpaper: Wallpaper.aurora)
-//riddlePhoneX.set(wallpaper: Wallpaper.mountains)
+riddlePhoneX.set(wallpaper: Wallpaper.mountains)
 
 
 /*:
@@ -56,7 +56,7 @@ riddlePhoneX.set(apps: apps)
  You know what? 30 apps that does nothing doesn't really get me excited, you know what I mean? Let's uninstall them.
  */
 // Uninstalling all existing apps
-riddlePhoneX.uninstallAllApps()
+//riddlePhoneX.uninstallAllApps()
 /*:
  #### Now that you've gotten a hang of it, let's get into the game...
  */
