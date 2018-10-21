@@ -238,8 +238,8 @@ public class RiddlePhoneXView: UIView {
 
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
-        let attrString = NSMutableAttributedString(string: string as String, attributes: [NSAttributedStringKey.font : UIFont.systemFont(ofSize: 16),  NSAttributedStringKey.foregroundColor : UIColor.white, NSAttributedStringKey.paragraphStyle: paragraphStyle])
-        let boldAttributes = [NSAttributedStringKey.font : UIFont.boldSystemFont(ofSize: 16)]
+        let attrString = NSMutableAttributedString(string: string as String, attributes: [NSAttributedString.Key.font : UIFont.systemFont(ofSize: 16),  NSAttributedString.Key.foregroundColor : UIColor.white, NSAttributedString.Key.paragraphStyle: paragraphStyle])
+        let boldAttributes = [NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: 16)]
         // Part of string to be bold
         attrString.addAttributes(boldAttributes, range: string.range(of: "Background music"))
         attrString.addAttributes(boldAttributes, range: string.range(of: "Confetti"))

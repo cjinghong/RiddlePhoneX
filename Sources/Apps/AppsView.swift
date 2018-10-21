@@ -293,7 +293,7 @@ extension AppsView: UICollectionViewDelegate, UICollectionViewDataSource, UIColl
             }
 
             let verticalInset: CGFloat = 6
-            return UIEdgeInsetsMake(verticalInset, horizontalInset, verticalInset, horizontalInset)
+            return UIEdgeInsets(top: verticalInset, left: horizontalInset, bottom: verticalInset, right: horizontalInset)
         }
         return UIEdgeInsets.zero
     }
